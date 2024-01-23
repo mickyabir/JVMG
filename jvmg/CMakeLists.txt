@@ -14,6 +14,7 @@ add_executable(. main.cpp
         include/jvmg/IR/classfile.h
         include/jvmg/bytecode/reader.h
         include/jvmg/bytecode/parser.h
-        src/bytecode/parser.cpp)
+        src/bytecode/parser.cpp
+        include/jvmg/IR/attribute.h)
 
 target_include_directories(. PRIVATE "include")

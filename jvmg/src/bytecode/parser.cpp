@@ -18,6 +18,7 @@ ClassFile Parser::consumeClassFile() {
     for (int i = 1; i < constantPoolCount; i++) {
         CPInfo cpInfo = consumeConstantPoolInfo();
         constantPool.push_back(cpInfo);
+        context->addConstantToPool(cpInfo);
     }
 
     std::uint16_t accessFlags = consumeTwoBytes();
@@ -45,9 +46,9 @@ ClassFile Parser::consumeClassFile() {
     }
 
     std::uint16_t attributesCount = consumeTwoBytes();
-    std::vector<ClassFile::AttributeInfo> attributes;
+    std::vector<AttributeInfo> attributes;
     for (int i = 0; i < attributesCount; i++) {
-        ClassFile::AttributeInfo attributesInfo = consumeAttributesInfo();
+        AttributeInfo attributesInfo = consumeAttributesInfo();
         attributes.push_back(attributesInfo);
     }
 
@@ -98,16 +99,46 @@ CPInfo Parser::consumeConstantPoolInfo() {
     return {(CPInfo::ConstantType) tag, info};
 }
 
-ClassFile::AttributeInfo Parser::consumeAttributesInfo() {
+AttributeInfo Parser::consumeAttributesInfo() {
     std::uint16_t attributeNameIndex = consumeTwoBytes();
     std::uint32_t attributeLength = consumeFourBytes();
     std::vector<std::uint8_t> info;
 
-    for (int i = 0; i < attributeLength; i++) {
-        info.push_back(consumeOneByte());
-    }
+    std::string attributeName = context->getConstantUTF8(attributeNameIndex);
 
-    return {attributeNameIndex, attributeLength, info};
+    if (attributeName == "Code") {
+        std::uint16_t maxStack = consumeTwoBytes();
+        std::uint16_t maxLocals = consumeTwoBytes();
+
+        std::uint32_t codeLength = consumeFourBytes();
+        std::vector<std::uint8_t> code;
+        for (int i = 0; i < codeLength; i++) {
+            code.push_back((consumeOneByte()));
+        }
+
+        std::uint16_t exceptionTableLength;
+        std::vector<CodeAttribute::ExceptionTableEntry> exceptionTable;
+        for (int i = 0; i < exceptionTableLength; i++) {
+            std::uint16_t startPC = consumeTwoBytes();
+            std::uint16_t endPC = consumeTwoBytes();
+            std::uint16_t handlerPC = consumeTwoBytes();
+            std::uint16_t catchType = consumeTwoBytes();
+            exceptionTable.push_back({startPC, endPC, handlerPC, catchType});
+        }
+
+        std::uint16_t attributesCount;
+        std::vector<AttributeInfo> attributes;
+        for (int i = 0; i < attributesCount; i++) {
+            attributes.push_back(consumeAttributesInfo());
+        }
+        return CodeAttribute(attributeNameIndex, attributeLength, std::vector<std::uint8_t>(), maxStack, maxLocals, codeLength, code, exceptionTableLength, exceptionTable, attributesCount, attributes);
+    } else {
+        for (int i = 0; i < attributeLength; i++) {
+            info.push_back(consumeOneByte());
+        }
+
+        return {attributeNameIndex, attributeLength, info};
+    }
 }
 
 ClassFile::FieldInfo Parser::consumeFieldInfo() {
@@ -116,7 +147,7 @@ ClassFile::FieldInfo Parser::consumeFieldInfo() {
     std::uint16_t descriptorIndex = consumeTwoBytes();
     std::uint16_t attributesCount = consumeTwoBytes();
 
-    std::vector<ClassFile::AttributeInfo> attributes;
+    std::vector<AttributeInfo> attributes;
     for (int i = 0; i < attributesCount; i++) {
         attributes.push_back(consumeAttributesInfo());
     }
@@ -129,7 +160,7 @@ ClassFile::MethodInfo Parser::consumeMethodInfo() {
     std::uint16_t nameIndex = consumeTwoBytes();
     std::uint16_t descriptorIndex = consumeTwoBytes();
     std::uint16_t attributesCount = consumeTwoBytes();
-    std::vector<ClassFile::AttributeInfo> attributes;
+    std::vector<AttributeInfo> attributes;
 
     for (int i = 0; i < attributesCount; i++) {
         attributes.push_back(consumeAttributesInfo());

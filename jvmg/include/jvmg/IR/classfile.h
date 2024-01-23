@@ -7,12 +7,16 @@
 
 #define CLASS_MAGIC 0xCAFEBABE
 
+#include "jvmg/IR/attribute.h"
+
 #include <cstdint>
 #include <vector>
 
 namespace jvmg {
     class ClassFile {
     public:
+        struct ConstUTF8Info;
+
         struct CPInfo {
             enum ConstantType : std::uint8_t {
                 CONSTANT_Class = 7,
@@ -33,8 +37,20 @@ namespace jvmg {
 
             CPInfo(ConstantType tag, std::vector<std::uint8_t> info) : tag(tag), info(info) {}
 
+            ConstUTF8Info *asUTF8Info() { return tag == CONSTANT_Utf8 ? (ConstUTF8Info*)this : nullptr; }
+
             ConstantType tag;
             std::vector<std::uint8_t> info;
+        };
+
+        struct ConstUTF8Info : CPInfo {
+            std::uint16_t getLength() {
+                return (info[0] << 8) | info[1];
+            }
+
+            std::uint8_t getByte(int idx) {
+                return info[idx + 2];
+            }
         };
 
         enum ClassAccessFlags : std::uint16_t {
@@ -46,20 +62,6 @@ namespace jvmg {
             ACC_SYNTHETIC = 0x1000,
             ACC_ANNOTATION = 0x2000,
             ACC_ENUM = 0x4000
-        };
-
-        struct AttributeInfo {
-            AttributeInfo(
-                    std::uint16_t attributeNameIndex,
-                    std::uint32_t attributeLength,
-                    std::vector<std::uint8_t> info) :
-                    attributeNameIndex(attributeNameIndex),
-                    attributeLength(attributeLength),
-                    info(std::move(info)) {}
-
-            std::uint16_t attributeNameIndex;
-            std::uint32_t attributeLength;
-            std::vector<std::uint8_t> info;
         };
 
         struct FieldInfo {
