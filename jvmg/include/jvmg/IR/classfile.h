@@ -8,6 +8,7 @@
 #define CLASS_MAGIC 0xCAFEBABE
 
 #include <cstdint>
+#include <vector>
 
 namespace jvmg {
     class ClassFile {
@@ -30,8 +31,10 @@ namespace jvmg {
                 CONSTANT_InvokeDynamic = 18,
             };
 
+            CPInfo(ConstantType tag, std::vector<std::uint8_t> info) : tag(tag), info(info) {}
+
             ConstantType tag;
-            std::uint8_t *info;
+            std::vector<std::uint8_t> info;
         };
 
         enum ClassAccessFlags : std::uint16_t {
@@ -45,10 +48,18 @@ namespace jvmg {
             ACC_ENUM = 0x4000
         };
 
-        struct AttributesInfo {
+        struct AttributeInfo {
+            AttributeInfo(
+                    std::uint16_t attributeNameIndex,
+                    std::uint32_t attributeLength,
+                    std::vector<std::uint8_t> info) :
+                    attributeNameIndex(attributeNameIndex),
+                    attributeLength(attributeLength),
+                    info(std::move(info)) {}
+
             std::uint16_t attributeNameIndex;
             std::uint32_t attributeLength;
-            std::uint8_t *info;
+            std::vector<std::uint8_t> info;
         };
 
         struct FieldInfo {
@@ -68,7 +79,7 @@ namespace jvmg {
             std::uint16_t nameIndex;
             std::uint16_t descriptorIndex;
             std::uint16_t attributesCount;
-            AttributesInfo *attributes;
+            std::vector<AttributeInfo> attributes;
         };
 
         struct MethodInfo {
@@ -86,31 +97,56 @@ namespace jvmg {
                 ACC_STRICT = 0x0800,
                 ACC_SYNTHETIC = 0x1000
             };
+
+            MethodInfo(
+                std::uint16_t accessFlags,
+                std::uint16_t nameIndex,
+                std::uint16_t descriptorIndex,
+                std::uint16_t attributesCount,
+                std::vector<AttributeInfo> attributes)
+                : accessFlags(accessFlags),
+                nameIndex(nameIndex),
+                descriptorIndex(descriptorIndex),
+                attributesCount(attributesCount),
+                attributes(std::move(attributes)) {}
+
             std::uint16_t accessFlags;
             std::uint16_t nameIndex;
             std::uint16_t descriptorIndex;
             std::uint16_t attributesCount;
-            AttributesInfo *attributes;
+            std::vector<AttributeInfo> attributes;
         };
 
+        ClassFile(const std::uint16_t &minorVersion, const std::uint16_t &majorVersion,
+                  const std::uint16_t &constantPoolCount, std::vector<CPInfo> constantPool, const std::uint16_t &accessFlags,
+                  const std::uint16_t &thisClass, const std::uint16_t &superClass, const std::uint16_t &interfaceCount,
+                  std::vector<std::uint16_t> interfaces, const std::uint16_t &fieldsCount, std::vector<FieldInfo> fields,
+                  const std::uint16_t &methodCount, std::vector<MethodInfo> methods, const std::uint16_t &attributesCount,
+                  std::vector<AttributeInfo> attributes) : minorVersion(minorVersion), majorVersion(majorVersion),
+                                                           constantPoolCount(constantPoolCount), constantPool(std::move(constantPool)),
+                                                           accessFlags(accessFlags), thisClass(thisClass), superClass(superClass),
+                                                           interfaceCount(interfaceCount), interfaces(std::move(interfaces)),
+                                                           fieldsCount(fieldsCount), fields(std::move(fields)), methodCount(methodCount),
+                                                           methods(std::move(methods)), attributesCount(attributesCount),
+                                                           attributes(std::move(attributes)) {}
 
     private:
         const std::uint32_t magic = CLASS_MAGIC;
         std::uint16_t minorVersion;
         std::uint16_t majorVersion;
         std::uint16_t constantPoolCount;
-        CPInfo *constantPool;
+        std::vector<CPInfo> constantPool;
         std::uint16_t accessFlags;
         std::uint16_t thisClass;
         std::uint16_t superClass;
         std::uint16_t interfaceCount;
-        std::uint16_t *interfaces;
+        std::vector<std::uint16_t> interfaces;
         std::uint16_t fieldsCount;
-        FieldInfo *fields;
+        std::vector<FieldInfo> fields;
         std::uint16_t methodCount;
-        MethodInfo *methods;
+        std::vector<MethodInfo> methods;
         std::uint16_t attributesCount;
-        AttributesInfo *attributes;
+        std::vector<AttributeInfo> attributes;
     };
 }
 
