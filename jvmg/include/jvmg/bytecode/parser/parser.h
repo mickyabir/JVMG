@@ -6,6 +6,7 @@
 #define _PARSER_H
 
 #include "jvmg/bytecode/reader.h"
+#include "jvmg/IR/instruction.h"
 
 #include <cassert>
 #include <sstream>
@@ -51,7 +52,9 @@ namespace jvmg {
         ClassFile::CPInfo consumeConstantPoolInfo();
         ClassFile::FieldInfo consumeFieldInfo();
         ClassFile::MethodInfo consumeMethodInfo();
-        AttributeInfo consumeAttributesInfo();
+        AttributeInfo *consumeAttributesInfo();
+
+        Instruction consumeInstruction();
 
     private:
         std::uint8_t consumeOneByte();

@@ -81,7 +81,7 @@ namespace jvmg {
             std::uint16_t nameIndex;
             std::uint16_t descriptorIndex;
             std::uint16_t attributesCount;
-            std::vector<AttributeInfo> attributes;
+            std::vector<AttributeInfo*> attributes;
         };
 
         struct MethodInfo {
@@ -105,7 +105,7 @@ namespace jvmg {
                 std::uint16_t nameIndex,
                 std::uint16_t descriptorIndex,
                 std::uint16_t attributesCount,
-                std::vector<AttributeInfo> attributes)
+                std::vector<AttributeInfo*> attributes)
                 : accessFlags(accessFlags),
                 nameIndex(nameIndex),
                 descriptorIndex(descriptorIndex),
@@ -116,7 +116,7 @@ namespace jvmg {
             std::uint16_t nameIndex;
             std::uint16_t descriptorIndex;
             std::uint16_t attributesCount;
-            std::vector<AttributeInfo> attributes;
+            std::vector<AttributeInfo*> attributes;
         };
 
         ClassFile(const std::uint16_t &minorVersion, const std::uint16_t &majorVersion,
@@ -124,13 +124,17 @@ namespace jvmg {
                   const std::uint16_t &thisClass, const std::uint16_t &superClass, const std::uint16_t &interfaceCount,
                   std::vector<std::uint16_t> interfaces, const std::uint16_t &fieldsCount, std::vector<FieldInfo> fields,
                   const std::uint16_t &methodCount, std::vector<MethodInfo> methods, const std::uint16_t &attributesCount,
-                  std::vector<AttributeInfo> attributes) : minorVersion(minorVersion), majorVersion(majorVersion),
+                  std::vector<AttributeInfo*> attributes) : minorVersion(minorVersion), majorVersion(majorVersion),
                                                            constantPoolCount(constantPoolCount), constantPool(std::move(constantPool)),
                                                            accessFlags(accessFlags), thisClass(thisClass), superClass(superClass),
                                                            interfaceCount(interfaceCount), interfaces(std::move(interfaces)),
                                                            fieldsCount(fieldsCount), fields(std::move(fields)), methodCount(methodCount),
                                                            methods(std::move(methods)), attributesCount(attributesCount),
                                                            attributes(std::move(attributes)) {}
+
+        [[nodiscard]] const std::vector<MethodInfo>& getMethods() const { return methods; }
+        [[nodiscard]] const std::vector<FieldInfo>& getFields() const { return fields; }
+        [[nodiscard]] const std::vector<AttributeInfo*>& getAttributes() const { return attributes; }
 
     private:
         const std::uint32_t magic = CLASS_MAGIC;
@@ -148,7 +152,7 @@ namespace jvmg {
         std::uint16_t methodCount;
         std::vector<MethodInfo> methods;
         std::uint16_t attributesCount;
-        std::vector<AttributeInfo> attributes;
+        std::vector<AttributeInfo*> attributes;
     };
 }
 

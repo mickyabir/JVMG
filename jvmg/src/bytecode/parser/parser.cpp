@@ -1,4 +1,4 @@
-#include "jvmg/bytecode/parser.h"
+#include "jvmg/bytecode/parser/parser.h"
 
 using namespace jvmg;
 
@@ -45,10 +45,13 @@ ClassFile Parser::consumeClassFile() {
         methods.push_back(methodInfo);
     }
 
+    auto test = methods[0];
+
     std::uint16_t attributesCount = consumeTwoBytes();
-    std::vector<AttributeInfo> attributes;
+    std::vector<AttributeInfo*> attributes;
+    AttributeInfo *attributesInfo;
     for (int i = 0; i < attributesCount; i++) {
-        AttributeInfo attributesInfo = consumeAttributesInfo();
+        attributesInfo = consumeAttributesInfo();
         attributes.push_back(attributesInfo);
     }
 
@@ -99,46 +102,69 @@ CPInfo Parser::consumeConstantPoolInfo() {
     return {(CPInfo::ConstantType) tag, info};
 }
 
-AttributeInfo Parser::consumeAttributesInfo() {
+AttributeInfo *Parser::consumeAttributesInfo() {
     std::uint16_t attributeNameIndex = consumeTwoBytes();
     std::uint32_t attributeLength = consumeFourBytes();
-    std::vector<std::uint8_t> info;
-
+    Info *info = nullptr;
     std::string attributeName = context->getConstantUTF8(attributeNameIndex);
+    AttributeInfo::AttributeNameTag attributeNameTag = AttributeInfo::getAttributeNameTag(attributeName);
 
-    if (attributeName == "Code") {
-        std::uint16_t maxStack = consumeTwoBytes();
-        std::uint16_t maxLocals = consumeTwoBytes();
+    auto *attributeInfo = new AttributeInfo(attributeNameIndex, attributeLength, info);
+    attributeInfo->setAttributeName(attributeName);
 
-        std::uint32_t codeLength = consumeFourBytes();
-        std::vector<std::uint8_t> code;
-        for (int i = 0; i < codeLength; i++) {
-            code.push_back((consumeOneByte()));
+    switch(attributeNameTag) {
+        case AttributeInfo::CODE: {
+            std::uint16_t maxStack = consumeTwoBytes();
+            std::uint16_t maxLocals = consumeTwoBytes();
+
+            std::uint32_t codeLength = consumeFourBytes();
+            std::vector<Instruction> code;
+            for (int i = 0; i < codeLength; i++) {
+                code.push_back((consumeInstruction()));
+            }
+
+            std::uint16_t exceptionTableLength = consumeTwoBytes();
+            std::vector<CodeInfo::ExceptionTableEntry> exceptionTable;
+            for (int i = 0; i < exceptionTableLength; i++) {
+                std::uint16_t startPC = consumeTwoBytes();
+                std::uint16_t endPC = consumeTwoBytes();
+                std::uint16_t handlerPC = consumeTwoBytes();
+                std::uint16_t catchType = consumeTwoBytes();
+                exceptionTable.push_back({startPC, endPC, handlerPC, catchType});
+            }
+
+            std::uint16_t attributesCount = consumeTwoBytes();
+            std::vector<AttributeInfo *> attributes;
+            for (int i = 0; i < attributesCount; i++) {
+                attributes.push_back(consumeAttributesInfo());
+            }
+            info = new CodeInfo(maxStack, maxLocals, codeLength, code, exceptionTableLength, exceptionTable,
+                                attributesCount, attributes);
+            break;
         }
-
-        std::uint16_t exceptionTableLength;
-        std::vector<CodeAttribute::ExceptionTableEntry> exceptionTable;
-        for (int i = 0; i < exceptionTableLength; i++) {
-            std::uint16_t startPC = consumeTwoBytes();
-            std::uint16_t endPC = consumeTwoBytes();
-            std::uint16_t handlerPC = consumeTwoBytes();
-            std::uint16_t catchType = consumeTwoBytes();
-            exceptionTable.push_back({startPC, endPC, handlerPC, catchType});
+        case AttributeInfo::LINE_NUMBER_TABLE: {
+            std::uint16_t lineNumberTableLength = consumeTwoBytes();
+            std::vector<LineNumberInfo::LineNumberTableEntry> lineNumberTable;
+            for (int i = 0; i < lineNumberTableLength; i++) {
+                std::uint16_t startPC = consumeTwoBytes();
+                std::uint16_t lineNumber = consumeTwoBytes();
+                lineNumberTable.push_back({startPC, lineNumber});
+            }
+            info = new LineNumberInfo(lineNumberTableLength, lineNumberTable);
+            break;
         }
-
-        std::uint16_t attributesCount;
-        std::vector<AttributeInfo> attributes;
-        for (int i = 0; i < attributesCount; i++) {
-            attributes.push_back(consumeAttributesInfo());
+        case AttributeInfo::SOURCE_FILE: {
+            std::uint16_t sourceFileIndex = consumeTwoBytes();
+            info = new SourceFileAttribute(sourceFileIndex);
+            break;
         }
-        return CodeAttribute(attributeNameIndex, attributeLength, std::vector<std::uint8_t>(), maxStack, maxLocals, codeLength, code, exceptionTableLength, exceptionTable, attributesCount, attributes);
-    } else {
-        for (int i = 0; i < attributeLength; i++) {
-            info.push_back(consumeOneByte());
-        }
-
-        return {attributeNameIndex, attributeLength, info};
+        default:
+            std::cout << "AttributeNameTag: " << attributeNameTag << std::endl;
+            throw std::invalid_argument("Invalid argument: " + attributeName);
     }
+
+    attributeInfo->info = info;
+    return attributeInfo;
 }
 
 ClassFile::FieldInfo Parser::consumeFieldInfo() {
@@ -147,7 +173,7 @@ ClassFile::FieldInfo Parser::consumeFieldInfo() {
     std::uint16_t descriptorIndex = consumeTwoBytes();
     std::uint16_t attributesCount = consumeTwoBytes();
 
-    std::vector<AttributeInfo> attributes;
+    std::vector<AttributeInfo*> attributes;
     for (int i = 0; i < attributesCount; i++) {
         attributes.push_back(consumeAttributesInfo());
     }
@@ -160,7 +186,7 @@ ClassFile::MethodInfo Parser::consumeMethodInfo() {
     std::uint16_t nameIndex = consumeTwoBytes();
     std::uint16_t descriptorIndex = consumeTwoBytes();
     std::uint16_t attributesCount = consumeTwoBytes();
-    std::vector<AttributeInfo> attributes;
+    std::vector<AttributeInfo*> attributes;
 
     for (int i = 0; i < attributesCount; i++) {
         attributes.push_back(consumeAttributesInfo());
