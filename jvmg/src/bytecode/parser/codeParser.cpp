@@ -7,6 +7,10 @@ Instruction::Opcode Instruction::getOpcodeFromOpcodeByte(std::uint16_t opcodeByt
         return Instruction::NOP;
     } else if (0x01 <= opcodeByte && opcodeByte <= 0x0F) {
         return Instruction::CONST;
+    } else if (opcodeByte == 0x10) {
+        return Instruction::BI_PUSH;
+    } else if (opcodeByte == 0x11) {
+        return Instruction::SI_PUSH;
     } else if (0x15 <= opcodeByte && opcodeByte <= 0x35) {
         return Instruction::LOAD;
     } else if (0x36 <= opcodeByte && opcodeByte <= 0x56) {
@@ -46,8 +50,20 @@ Instruction Parser::consumeInstruction() {
         case Instruction::CONST: {
             return ConstInst(opcodeByte);
         }
+        case Instruction::BI_PUSH: {
+            auto operand = consumeOneByte();
+            return BiPushInst(operand);
+        }
+        case Instruction::SI_PUSH: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            return SiPushInst(operand1, operand2);
+        }
         case Instruction::LOAD: {
             return LoadInst(opcodeByte);
+        }
+        case Instruction::STORE: {
+            return StoreInst(opcodeByte);
         }
         case Instruction::RETURN: {
             return ReturnInst(opcodeByte);
