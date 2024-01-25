@@ -23,6 +23,14 @@ Instruction::Opcode Instruction::getOpcodeFromOpcodeByte(std::uint16_t opcodeByt
         return Instruction::SUB;
     } else if (0x68 <= opcodeByte && opcodeByte <= 0x6B) {
         return Instruction::MUL;
+    } else if (0x6C <= opcodeByte && opcodeByte <= 0x6F) {
+        return Instruction::DIV;
+    } else if (0xAC <= opcodeByte && opcodeByte <= 0xB1) {
+        return Instruction::RETURN;
+    } else if (opcodeByte == 0xB4) {
+        return Instruction::GET_FIELD;
+    } else if (opcodeByte == 0xB5) {
+        return Instruction::PUT_FIELD;
     } else if (opcodeByte == 0xB7) {
         return Instruction::INVOKE_SPECIAL;
     } else {
@@ -41,10 +49,23 @@ Instruction Parser::consumeInstruction() {
         case Instruction::LOAD: {
             return LoadInst(opcodeByte);
         }
+        case Instruction::RETURN: {
+            return ReturnInst(opcodeByte);
+        }
+        case Instruction::GET_FIELD: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            return GetFieldInst(operand1, operand2);
+        }
+        case Instruction::PUT_FIELD: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            return PutFieldInst(operand1, operand2);
+        }
         case Instruction::INVOKE_SPECIAL: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return InvokeSpecial(operand1, operand2);
+            return InvokeSpecialInst(operand1, operand2);
         }
         case Instruction::INVALID_INSTRUCTION_OPCODE:
         default:

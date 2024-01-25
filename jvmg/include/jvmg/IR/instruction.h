@@ -27,6 +27,10 @@ namespace jvmg {
             ADD,
             SUB,
             MUL,
+            DIV,
+            RETURN,
+            GET_FIELD,
+            PUT_FIELD,
             INVOKE_SPECIAL,
             INVALID_INSTRUCTION_OPCODE
         };
@@ -37,23 +41,27 @@ namespace jvmg {
             IntTy,
             LongTy,
             CharTy,
-            Float,
-            Double,
-            ReferenceTy
+            FloatTy,
+            DoubleTy,
+            ReferenceTy,
+            NoTy
         };
 
-        explicit Instruction(Opcode opcode) : opcode(opcode) {}
+        explicit Instruction(Opcode opcode) : opcode(opcode), type(NoTy), sizeInBytes(1) {}
 
         Instruction(Opcode opcode, std::uint8_t operand1)
-            : opcode(opcode), operand1(operand1) {}
+            : opcode(opcode), operand1(operand1), sizeInBytes(2) {}
 
         Instruction(Opcode opcode, std::uint8_t operand1, std::uint8_t operand2)
-                : opcode(opcode), operand1(operand1), operand2(operand2) {}
+                : opcode(opcode), operand1(operand1), operand2(operand2), sizeInBytes(3) {}
 
         static Opcode getOpcodeFromOpcodeByte(std::uint16_t opcodeByte);
+
+        int getSizeInBytes() { return sizeInBytes; }
     protected:
         Opcode opcode;
         Type type;
+        int sizeInBytes;
         std::optional<int> value;
         std::optional<std::uint8_t> operand1;
         std::optional<std::uint8_t> operand2;
@@ -123,9 +131,32 @@ namespace jvmg {
         }
     };
 
-    class InvokeSpecial : public Instruction {
+    class ReturnInst : public Instruction {
     public:
-        InvokeSpecial( std::uint8_t indexByte1, std::uint8_t indexByte2) : Instruction(Instruction::Opcode::INVOKE_SPECIAL, indexByte1, indexByte2) {
+        explicit ReturnInst(std::uint16_t opcodeByte) : Instruction(RETURN) {
+            switch (opcodeByte) {
+                case 0xAC:{
+                    type = IntTy;
+                }
+                case 0xAD:{
+                    type = LongTy;
+                }
+                case 0xAE:{
+                    type = FloatTy;
+                }
+                case 0xAF:{
+                    type = DoubleTy;
+                }
+                case 0xB0:{
+                    type = ReferenceTy;
+                }
+            }
+        }
+    };
+
+    class IndexInstruction: public Instruction {
+    public:
+        IndexInstruction(Opcode opcode, std::uint8_t indexByte1, std::uint8_t indexByte2) : Instruction(opcode, indexByte1, indexByte2) {
             index = (indexByte1 << 8) | indexByte2;
         }
 
@@ -140,6 +171,21 @@ namespace jvmg {
         }
     private:
         std::uint16_t index;
+    };
+
+    class GetFieldInst: public IndexInstruction {
+    public:
+        GetFieldInst(std::uint8_t indexByte1, std::uint8_t indexByte2) : IndexInstruction(GET_FIELD, indexByte1, indexByte2) {}
+    };
+
+    class PutFieldInst: public IndexInstruction {
+    public:
+        PutFieldInst(std::uint8_t indexByte1, std::uint8_t indexByte2) : IndexInstruction(PUT_FIELD, indexByte1, indexByte2) {}
+    };
+
+    class InvokeSpecialInst : public IndexInstruction {
+    public:
+        InvokeSpecialInst( std::uint8_t indexByte1, std::uint8_t indexByte2) : IndexInstruction(INVOKE_SPECIAL, indexByte1, indexByte2) {}
     };
 }
 

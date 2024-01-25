@@ -119,8 +119,12 @@ AttributeInfo *Parser::consumeAttributesInfo() {
 
             std::uint32_t codeLength = consumeFourBytes();
             std::vector<Instruction> code;
-            for (int i = 0; i < codeLength; i++) {
+
+            // Code length is in bytes, and instructions are variable-length
+            // Keep track of bytes consumed
+            for (int i = 0; i < codeLength;) {
                 code.push_back((consumeInstruction()));
+                i += code.back().getSizeInBytes();
             }
 
             std::uint16_t exceptionTableLength = consumeTwoBytes();
