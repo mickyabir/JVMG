@@ -158,12 +158,12 @@ namespace jvmg {
 
         static std::map<std::string, AttributeNameTag> attributeNameTagMap;
 
-        static AttributeNameTag getAttributeNameTag(std::string attributeName) {
+        static AttributeNameTag getAttributeNameTag(const std::string& attributeName) {
             return attributeNameTagMap[attributeName];
         }
 
-        void setAttributeName(std::string attributeName) {
-            this->attributeName = attributeName;
+        void setAttributeName(std::string name) {
+            attributeName = std::move(name);
         }
 
         std::string getAttributeName() {

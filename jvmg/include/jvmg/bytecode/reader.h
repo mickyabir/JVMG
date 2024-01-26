@@ -24,7 +24,6 @@ namespace jvmg {
         std::uint8_t readByte() {
             std::uint8_t byte;
             srcFile.read((char *)&byte, 1);
-            //std::cout << std::hex << (int)byte << (byte == 0xca) << std::endl;
             return byte;
         }
 
