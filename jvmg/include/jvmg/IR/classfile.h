@@ -94,6 +94,7 @@ namespace jvmg {
                 std::vector<AttributeInfo*> attributes)
                 : accessFlags(accessFlags),
                 nameIndex(nameIndex),
+                descriptorIndex(descriptorIndex),
                 attributesCount(attributesCount),
                 attributes(std::move(attributes)) {}
 

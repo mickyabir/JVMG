@@ -71,19 +71,7 @@ namespace jvmg {
         std::vector<AttributeInfo*> attributes;
 
     private:
-        void _serialize() override {
-            serializeBytes(maxStack);
-            serializeBytes(maxStack);
-            serializeBytes(maxLocals);
-            serializeBytes(codeLength);
-            for (auto& inst : code) {
-                insertBytes(inst.serialize());
-            }
-            serializeBytes(exceptionTableLength);
-            for (auto& exception : exceptionTable) {
-                insertBytes(exception.serialize());
-            }
-        }
+        void _serialize() override;
     };
 
     struct LineNumberInfo : Info {
@@ -132,7 +120,7 @@ namespace jvmg {
         std::string sourceFileName;
     };
 
-    struct AttributeInfo : Serializable {
+    struct AttributeInfo : public Serializable {
         enum AttributeNameTag {
             CONSTANT_VALUE = 0,
             CODE,
@@ -174,7 +162,6 @@ namespace jvmg {
             return attributeNameTagMap[attributeName];
         }
 
-
         void setAttributeName(std::string attributeName) {
             this->attributeName = attributeName;
         }
@@ -188,7 +175,7 @@ namespace jvmg {
         Info *info;
 
     private:
-        void _serialize() {
+        void _serialize() override {
             serializeBytes(attributeNameIndex);
             serializeBytes(attributeLength);
             insertBytes(info->serialize());

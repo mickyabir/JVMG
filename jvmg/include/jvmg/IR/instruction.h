@@ -75,6 +75,15 @@ namespace jvmg {
 
     private:
         void _serialize() override {
+            serializeBytes(opcodeByte);
+            if (operand1.has_value()) {
+                serializeBytes(operand1.value());
+
+                // Nested because operand2 should not have a value if operand1 does not
+                if (operand2.has_value()) {
+                    serializeBytes(operand2.value());
+                }
+            }
         }
         std::uint8_t opcodeByte;
     protected:

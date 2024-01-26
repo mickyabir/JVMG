@@ -142,8 +142,7 @@ AttributeInfo *Parser::consumeAttributesInfo() {
             for (int i = 0; i < attributesCount; i++) {
                 attributes.push_back(consumeAttributesInfo());
             }
-            info = new CodeInfo(maxStack, maxLocals, codeLength, code, exceptionTableLength, exceptionTable,
-                                attributesCount, attributes);
+            info = new CodeInfo(maxStack, maxLocals, codeLength, code, exceptionTableLength, exceptionTable, attributesCount, attributes);
             break;
         }
         case AttributeInfo::LINE_NUMBER_TABLE: {

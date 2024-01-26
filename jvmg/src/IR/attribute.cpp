@@ -27,3 +27,24 @@ std::map<std::string, AttributeInfo::AttributeNameTag> AttributeInfo::attributeN
         {"AnnotationDefault", AttributeInfo::ANNOTATION_DEFAULT},
         {"BootstrapMethods", AttributeInfo::BOOTSTRAP_METHODS}
 };
+
+
+void CodeInfo::_serialize() {
+    serializeBytes(maxStack);
+    serializeBytes(maxLocals);
+    serializeBytes(codeLength);
+
+    for (auto& inst : code) {
+        insertBytes(inst.serialize());
+    }
+
+    serializeBytes(exceptionTableLength);
+    for (auto& exception : exceptionTable) {
+        insertBytes(exception.serialize());
+    }
+
+    serializeBytes(attributesCount);
+    for (auto& attribute : attributes) {
+        insertBytes(attribute->serialize());
+    }
+}
