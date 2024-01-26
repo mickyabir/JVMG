@@ -4,7 +4,6 @@ project(.)
 set(CMAKE_CXX_STANDARD 23)
 
 add_executable(. main.cpp
-        include/jvmg/IR/type.h
         include/jvmg/IR/instruction.h
         src/IR/instruction.cpp
         include/jvmg/IR/classfile.h
