@@ -12,9 +12,10 @@
 #include <map>
 #include <cstdint>
 #include <optional>
+#include "jvmg/util/util.h"
 
 namespace jvmg {
-    class Instruction {
+    class Instruction : public Serializable {
     public:
         enum Opcode {
             NOP,
@@ -60,17 +61,22 @@ namespace jvmg {
             FIVE
         };
 
-        explicit Instruction(Opcode opcode) : opcode(opcode), type(NoTy) {}
+        explicit Instruction(std::uint8_t opcodeByte) : opcodeByte(opcodeByte), type(NoTy), opcode(getOpcodeFromOpcodeByte(opcodeByte)) {}
 
-        Instruction(Opcode opcode, std::uint8_t operand1)
-            : opcode(opcode), operand1(operand1), type(NoTy) {}
+        Instruction(std::uint8_t opcodeByte, std::uint8_t operand1)
+            : opcodeByte(opcodeByte), operand1(operand1), type(NoTy), opcode(getOpcodeFromOpcodeByte(opcodeByte)) {}
 
-        Instruction(Opcode opcode, std::uint8_t operand1, std::uint8_t operand2)
-                : opcode(opcode), operand1(operand1), operand2(operand2), type(NoTy) {}
+        Instruction(std::uint8_t opcodeByte, std::uint8_t operand1, std::uint8_t operand2)
+                : opcodeByte(opcodeByte), operand1(operand1), operand2(operand2), type(NoTy), opcode(getOpcodeFromOpcodeByte(opcodeByte)){}
 
         static Opcode getOpcodeFromOpcodeByte(std::uint16_t opcodeByte);
 
         int getSizeInBytes() { return 1 + (operand1.has_value() ? 1 : 0) + (operand2.has_value() ? 1 : 0); }
+
+    private:
+        void _serialize() override {
+        }
+        std::uint8_t opcodeByte;
     protected:
         Opcode opcode;
         Type type;
@@ -81,7 +87,7 @@ namespace jvmg {
 
     class ConstInst : public Instruction {
     public:
-        explicit ConstInst(std::uint8_t opcodeByte) : Instruction(CONST) {
+        explicit ConstInst(std::uint8_t opcodeByte) : Instruction(opcodeByte) {
             switch (opcodeByte) {
                 case 0x01: {
                     type = ReferenceTy;
@@ -131,7 +137,7 @@ namespace jvmg {
 
     class LoadInst : public Instruction {
     public:
-        LoadInst(std::uint16_t opcodeByte) : Instruction(LOAD) {
+        LoadInst(std::uint16_t opcodeByte) : Instruction(opcodeByte) {
             switch (opcodeByte) {
                 case 0x2A: {
                     type = ReferenceTy;
@@ -146,7 +152,7 @@ namespace jvmg {
 
     class StoreInst : public Instruction {
     public:
-        StoreInst(std::uint16_t opcodeByte) : Instruction(STORE) {
+        StoreInst(std::uint16_t opcodeByte) : Instruction(opcodeByte) {
             switch (opcodeByte) {
                 case 0x3C: {
                     type = IntTy;
@@ -161,20 +167,20 @@ namespace jvmg {
 
     class BiPushInst : public Instruction {
     public:
-        explicit BiPushInst(std::uint8_t operand) : Instruction(BI_PUSH, operand) {
+        explicit BiPushInst(std::uint8_t opcodeByte, std::uint8_t operand) : Instruction(opcodeByte, operand) {
             type = ByteTy;
         }
     };
     class SiPushInst : public Instruction {
     public:
-        SiPushInst(std::uint8_t operand1, std::uint8_t operand2) : Instruction(SI_PUSH, operand1, operand2) {
+        SiPushInst(std::uint8_t opcodeByte, std::uint8_t operand1, std::uint8_t operand2) : Instruction(opcodeByte, operand1, operand2) {
             type = ShortTy;
         }
     };
 
     class ReturnInst : public Instruction {
     public:
-        explicit ReturnInst(std::uint16_t opcodeByte) : Instruction(RETURN) {
+        explicit ReturnInst(std::uint16_t opcodeByte) : Instruction(opcodeByte) {
             switch (opcodeByte) {
                 case 0xAC: {
                     type = IntTy;
@@ -207,7 +213,7 @@ namespace jvmg {
 
     class IndexInstruction: public Instruction {
     public:
-        IndexInstruction(Opcode opcode, std::uint8_t indexByte1, std::uint8_t indexByte2) : Instruction(opcode, indexByte1, indexByte2) {
+        IndexInstruction(std::uint8_t opcodeByte, std::uint8_t indexByte1, std::uint8_t indexByte2) : Instruction(opcodeByte, indexByte1, indexByte2) {
             index = (indexByte1 << 8) | indexByte2;
         }
 
@@ -226,17 +232,17 @@ namespace jvmg {
 
     class GetFieldInst: public IndexInstruction {
     public:
-        GetFieldInst(std::uint8_t indexByte1, std::uint8_t indexByte2) : IndexInstruction(GET_FIELD, indexByte1, indexByte2) {}
+        GetFieldInst(std::uint8_t opcodeByte, std::uint8_t indexByte1, std::uint8_t indexByte2) : IndexInstruction(opcodeByte, indexByte1, indexByte2) {}
     };
 
     class PutFieldInst: public IndexInstruction {
     public:
-        PutFieldInst(std::uint8_t indexByte1, std::uint8_t indexByte2) : IndexInstruction(PUT_FIELD, indexByte1, indexByte2) {}
+        PutFieldInst(std::uint8_t opcodeByte, std::uint8_t indexByte1, std::uint8_t indexByte2) : IndexInstruction(opcodeByte, indexByte1, indexByte2) {}
     };
 
     class InvokeSpecialInst : public IndexInstruction {
     public:
-        InvokeSpecialInst( std::uint8_t indexByte1, std::uint8_t indexByte2) : IndexInstruction(INVOKE_SPECIAL, indexByte1, indexByte2) {}
+        InvokeSpecialInst(std::uint8_t opcodeByte, std::uint8_t indexByte1, std::uint8_t indexByte2) : IndexInstruction(opcodeByte, indexByte1, indexByte2) {}
     };
 }
 

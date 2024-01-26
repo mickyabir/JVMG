@@ -10,20 +10,38 @@
 #include <string>
 #include <map>
 #include "instruction.h"
+#include "jvmg/util/util.h"
 
 namespace jvmg {
     struct AttributeInfo;
     struct CodeInfo;
 
-    struct Info {
+    struct Info : public Serializable {
     };
 
-    struct CodeInfo : Info {
-        struct ExceptionTableEntry {
+    struct CodeInfo : public Info {
+        struct ExceptionTableEntry : public Serializable {
+        public:
+            ExceptionTableEntry(std::uint16_t startPC,
+                std::uint16_t endPC,
+                std::uint16_t handlerPC,
+                std::uint16_t catchType)
+                : startPC(startPC),
+                endPC(endPC),
+                handlerPC(handlerPC),
+                catchType(catchType) {}
+
             std::uint16_t startPC;
             std::uint16_t endPC;
             std::uint16_t handlerPC;
             std::uint16_t catchType;
+        private:
+            void _serialize() override {
+                serializeBytes(startPC);
+                serializeBytes(endPC);
+                serializeBytes(handlerPC);
+                serializeBytes(catchType);
+            }
         };
 
         CodeInfo(std::uint16_t maxStack,
@@ -51,12 +69,38 @@ namespace jvmg {
         std::vector<ExceptionTableEntry> exceptionTable;
         std::uint16_t attributesCount;
         std::vector<AttributeInfo*> attributes;
+
+    private:
+        void _serialize() override {
+            serializeBytes(maxStack);
+            serializeBytes(maxStack);
+            serializeBytes(maxLocals);
+            serializeBytes(codeLength);
+            for (auto& inst : code) {
+                insertBytes(inst.serialize());
+            }
+            serializeBytes(exceptionTableLength);
+            for (auto& exception : exceptionTable) {
+                insertBytes(exception.serialize());
+            }
+        }
     };
 
     struct LineNumberInfo : Info {
-        struct LineNumberTableEntry {
+        struct LineNumberTableEntry : public Serializable {
+        public:
+            LineNumberTableEntry(std::uint16_t startPC,
+                std::uint16_t lineNumber)
+                : startPC(startPC),
+                lineNumber(lineNumber) {}
+
             std::uint16_t startPC;
             std::uint16_t lineNumber;
+        private:
+            void _serialize() override {
+                serializeBytes(startPC);
+                serializeBytes(lineNumber);
+            }
         };
 
         LineNumberInfo(std::uint16_t lineNumberTableLength,
@@ -66,14 +110,29 @@ namespace jvmg {
 
         std::uint16_t lineNumberTableLength;
         std::vector<LineNumberTableEntry> lineNumberTable;
+
+    private:
+        void _serialize() override {
+            serializeBytes(lineNumberTableLength);
+            for (auto& lineNumberTableEntry : lineNumberTable) {
+                insertBytes(lineNumberTableEntry.serialize());
+            }
+        }
     };
 
-    struct SourceFileAttribute : Info {
-        SourceFileAttribute(std::uint16_t sourceFileIndex) : sourceFileIndex(sourceFileIndex) {}
+    struct SourceFileInfo : Info {
+        SourceFileInfo(std::uint16_t sourceFileIndex, std::string sourceFileName) : sourceFileIndex(sourceFileIndex), sourceFileName(sourceFileName) {}
+
         std::uint16_t sourceFileIndex;
+    private:
+        void _serialize() override {
+            serializeBytes(sourceFileIndex);
+        }
+
+        std::string sourceFileName;
     };
 
-    struct AttributeInfo {
+    struct AttributeInfo : Serializable {
         enum AttributeNameTag {
             CONSTANT_VALUE = 0,
             CODE,
@@ -129,6 +188,11 @@ namespace jvmg {
         Info *info;
 
     private:
+        void _serialize() {
+            serializeBytes(attributeNameIndex);
+            serializeBytes(attributeLength);
+            insertBytes(info->serialize());
+        }
         std::string attributeName;
     };
 }

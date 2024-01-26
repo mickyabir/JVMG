@@ -52,12 +52,12 @@ Instruction Parser::consumeInstruction() {
         }
         case Instruction::BI_PUSH: {
             auto operand = consumeOneByte();
-            return BiPushInst(operand);
+            return BiPushInst(opcodeByte, operand);
         }
         case Instruction::SI_PUSH: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return SiPushInst(operand1, operand2);
+            return SiPushInst(opcodeByte, operand1, operand2);
         }
         case Instruction::LOAD: {
             return LoadInst(opcodeByte);
@@ -71,17 +71,17 @@ Instruction Parser::consumeInstruction() {
         case Instruction::GET_FIELD: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return GetFieldInst(operand1, operand2);
+            return GetFieldInst(opcodeByte, operand1, operand2);
         }
         case Instruction::PUT_FIELD: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return PutFieldInst(operand1, operand2);
+            return PutFieldInst(opcodeByte, operand1, operand2);
         }
         case Instruction::INVOKE_SPECIAL: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return InvokeSpecialInst(operand1, operand2);
+            return InvokeSpecialInst(opcodeByte, operand1, operand2);
         }
         case Instruction::INVALID_INSTRUCTION_OPCODE:
         default:

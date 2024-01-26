@@ -159,7 +159,7 @@ AttributeInfo *Parser::consumeAttributesInfo() {
         }
         case AttributeInfo::SOURCE_FILE: {
             std::uint16_t sourceFileIndex = consumeTwoBytes();
-            info = new SourceFileAttribute(sourceFileIndex);
+            info = new SourceFileInfo(sourceFileIndex, attributeName);
             break;
         }
         default:

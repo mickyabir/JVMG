@@ -13,11 +13,11 @@
 #include <vector>
 
 namespace jvmg {
-    class ClassFile {
+    class ClassFile : public Serializable {
     public:
         struct ConstUTF8Info;
 
-        struct CPInfo {
+        struct CPInfo : Serializable {
             enum ConstantType : std::uint8_t {
                 CONSTANT_Class = 7,
                 CONSTANT_Fieldref = 9,
@@ -41,6 +41,15 @@ namespace jvmg {
 
             ConstantType tag;
             std::vector<std::uint8_t> info;
+
+        private:
+            void _serialize() override {
+                serializeBytes(tag);
+                for (auto& byte : info) {
+                    serializeBytes(byte);
+                }
+            }
+
         };
 
         struct ConstUTF8Info : CPInfo {
@@ -64,7 +73,8 @@ namespace jvmg {
             ACC_ENUM = 0x4000
         };
 
-        struct FieldInfo {
+        struct FieldInfo : Serializable {
+        public:
             enum FieldAccessFlag : std::uint16_t {
                 ACC_PUBLIC = 0x0001,
                 ACC_PRIVATE = 0x0002,
@@ -77,14 +87,37 @@ namespace jvmg {
                 ACC_ENUM = 0x4000
             };
 
+            FieldInfo(std::uint16_t accessFlags,
+                std::uint16_t nameIndex,
+                std::uint16_t descriptorIndex,
+                std::uint16_t attributesCount,
+                std::vector<AttributeInfo*> attributes)
+                : accessFlags(accessFlags),
+                nameIndex(nameIndex),
+                attributesCount(attributesCount),
+                attributes(std::move(attributes)) {}
+
             std::uint16_t accessFlags;
             std::uint16_t nameIndex;
             std::uint16_t descriptorIndex;
             std::uint16_t attributesCount;
             std::vector<AttributeInfo*> attributes;
+
+        private:
+            void _serialize() override {
+                serializeBytes(accessFlags);
+                serializeBytes(nameIndex);
+                serializeBytes(descriptorIndex);
+                serializeBytes(attributesCount);
+
+                for (auto& attribute : attributes) {
+                    insertBytes(attribute->serialize());
+                }
+            }
         };
 
-        struct MethodInfo {
+        struct MethodInfo : public Serializable {
+        public:
             enum MethodAccessFlags : uint16_t {
                 ACC_PUBLIC = 0x0001,
                 ACC_PRIVATE = 0x0002,
@@ -117,6 +150,17 @@ namespace jvmg {
             std::uint16_t descriptorIndex;
             std::uint16_t attributesCount;
             std::vector<AttributeInfo*> attributes;
+
+        private:
+            void _serialize() override {
+                serializeBytes(accessFlags);
+                serializeBytes(nameIndex);
+                serializeBytes(descriptorIndex);
+                serializeBytes(attributesCount);
+                for (auto& attributeInfo : attributes) {
+                    insertBytes(attributeInfo->serialize());
+                }
+            }
         };
 
         ClassFile(const std::uint16_t &minorVersion, const std::uint16_t &majorVersion,
@@ -133,10 +177,57 @@ namespace jvmg {
                                                            attributes(std::move(attributes)) {}
 
         [[nodiscard]] const std::vector<MethodInfo>& getMethods() const { return methods; }
-        [[nodiscard]] const std::vector<FieldInfo>& getFields() const { return fields; }
         [[nodiscard]] const std::vector<AttributeInfo*>& getAttributes() const { return attributes; }
 
+        [[nodiscard]] std::uint32_t getMagic() const { return magic; }
+        [[nodiscard]] std::uint16_t getMinorVersion() const { return minorVersion; }
+        [[nodiscard]] std::uint16_t getMajorVersion() const { return majorVersion; }
+        [[nodiscard]] std::uint16_t getConstantPoolCount() const { return constantPoolCount; }
+        [[nodiscard]] const std::vector<CPInfo>& getConstantPool() const { return constantPool; }
+        [[nodiscard]] std::uint16_t getAccessFlags() const { return accessFlags; }
+        [[nodiscard]] std::uint16_t getThisClass() const { return thisClass; }
+        [[nodiscard]] std::uint16_t getSuperClass() const { return superClass; }
+        [[nodiscard]] std::uint16_t getInterfaceCount() const { return interfaceCount; }
+        [[nodiscard]] const std::vector<std::uint16_t>& getInterfaces() const { return interfaces; }
+        [[nodiscard]] std::uint16_t getFieldsCount() const { return fieldsCount; }
+        [[nodiscard]] const std::vector<FieldInfo>& getFields() const { return fields; }
+
     private:
+        void _serialize() override {
+            serializeBytes(magic);
+            serializeBytes(minorVersion);
+            serializeBytes(majorVersion);
+
+            serializeBytes(constantPoolCount);
+            for (auto& constant : constantPool) {
+                insertBytes(constant.serialize());
+            }
+
+            serializeBytes(accessFlags);
+            serializeBytes(thisClass);
+            serializeBytes(superClass);
+
+            serializeBytes(interfaceCount);
+            for (auto& interface : interfaces) {
+                serializeBytes(interface);
+            }
+
+            serializeBytes(fieldsCount);
+            for (auto& field : fields) {
+                insertBytes(field.serialize());
+            }
+
+            serializeBytes(methodCount);
+            for (auto& method : methods) {
+                insertBytes((method.serialize()));
+            }
+
+            serializeBytes(attributesCount);
+            for (auto& attribute : attributes) {
+                insertBytes(attribute->serialize());
+            }
+        }
+
         const std::uint32_t magic = CLASS_MAGIC;
         std::uint16_t minorVersion;
         std::uint16_t majorVersion;

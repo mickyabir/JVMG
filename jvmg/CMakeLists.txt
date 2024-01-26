@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 23)
 
 add_executable(. main.cpp
         include/jvmg/IR/type.h
-        include/jvmg/IR/value.h
         include/jvmg/IR/instruction.h
         src/IR/instruction.cpp
         include/jvmg/IR/classfile.h
@@ -14,6 +13,8 @@ add_executable(. main.cpp
         src/bytecode/parser/parser.cpp
         include/jvmg/IR/attribute.h
         src/IR/attribute.cpp
-        src/bytecode/parser/codeParser.cpp)
+        src/bytecode/parser/codeParser.cpp
+        include/jvmg/codegen/codegen.h
+        include/jvmg/util/util.h)
 
 target_include_directories(. PRIVATE "include")

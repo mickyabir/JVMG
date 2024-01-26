@@ -1,6 +1,7 @@
 #include "jvmg/bytecode/reader.h"
 #include "jvmg/IR/instruction.h"
 #include "jvmg/bytecode/parser/parser.h"
+#include "jvmg/codegen/codegen.h"
 
 using namespace jvmg;
 
@@ -13,6 +14,8 @@ int main() {
     auto method1 = (CodeInfo*)classFile.getMethods()[0].attributes[0]->info;
     auto method2 = (CodeInfo*)classFile.getMethods()[1].attributes[0]->info;
     auto method3 = (CodeInfo*)classFile.getMethods()[2].attributes[0]->info;
+
+    outputBinaryFromClassfile(classFile, "test.class");
 
     return 0;
 }
