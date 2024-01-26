@@ -14,6 +14,8 @@ add_executable(. main.cpp
         src/IR/attribute.cpp
         src/bytecode/parser/codeParser.cpp
         include/jvmg/codegen/codegen.h
-        include/jvmg/util/util.h)
+        include/jvmg/util/util.h
+        src/util/util.cpp
+        src/IR/classfile.cpp)
 
 target_include_directories(. PRIVATE "include")

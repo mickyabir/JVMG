@@ -6,46 +6,35 @@
 #define _UTIL_H
 
 #include <cstdint>
+#include <fstream>
 #include <vector>
 
-class Serializable {
-public:
-    std::vector<std::uint8_t>& serialize() {
-        clearBytes();
-        _serialize();
-        return getBytes();
-    }
+namespace jvmg {
+    class Serializable {
+    public:
+        std::vector<std::uint8_t> &serialize();
 
-    std::vector<uint8_t>& getBytes() { return _bytes; }
+        void clearBuffer() { _buffer.clear(); }
 
-    void clearBytes() { _bytes.clear(); }
+        std::vector<uint8_t> &getBytes() { return _buffer; }
 
-    void insertBytes(std::vector<std::uint8_t> &bytes) {
-        _bytes.insert(_bytes.end(), bytes.begin(), bytes.end());
-    }
+        void insertBytes(std::vector<std::uint8_t> &bytes);
 
-    void serializeBytes(std::uint8_t bytes) {
-        _bytes.push_back(bytes);
-    }
+        void serializeBytes(std::uint8_t bytes);
 
-    // Example - takes in 0xCAFE and serializes [CA, FE]
-    void serializeBytes(std::uint16_t bytes) {
-        _bytes.push_back((std::uint8_t) ((bytes & 0xFF00) >> 8));
-        _bytes.push_back((std::uint8_t) (bytes & 0xFF));
-    }
+        // Example - takes in 0xCAFE and serializes [CA, FE]
+        void serializeBytes(std::uint16_t bytes);
 
-    // Example - takes in 0xCAFEBABE and serializes [CA, FE, BA, BE]
-    void serializeBytes(std::uint32_t bytes) {
-        _bytes.push_back((std::uint8_t) ((bytes & 0xFF000000) >> 24));
-        _bytes.push_back((std::uint8_t) ((bytes & 0xFF0000) >> 16));
-        _bytes.push_back((std::uint8_t) ((bytes & 0xFF00) >> 8));
-        _bytes.push_back((std::uint8_t) (bytes & 0xFF));
-    }
+        // Example - takes in 0xCAFEBABE and serializes [CA, FE, BA, BE]
+        void serializeBytes(std::uint32_t bytes);
 
-private:
-    virtual void _serialize() = 0;
+        void outputToFile(const std::string& filename);
 
-    std::vector<std::uint8_t> _bytes;
-};
+    private:
+        virtual void _serialize() = 0;
+
+        std::vector<std::uint8_t> _buffer;
+    };
+}
 
 #endif //_UTIL_H

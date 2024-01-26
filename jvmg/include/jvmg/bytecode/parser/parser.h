@@ -14,40 +14,22 @@
 namespace jvmg {
     class ParserContext {
     public:
-        void addConstantToPool(ClassFile::CPInfo constant) { constantPool.push_back(constant); }
-        std::string getConstantUTF8(int idx) {
-            // Constant pool indices start at 1, so subtract 1
-            int constantIdx = idx - 1;
-            assert(constantIdx < constantPool.size() - 1);
-
-            auto cpInfo = constantPool.at(constantIdx);
-            assert(cpInfo.tag == ClassFile::CPInfo::CONSTANT_Utf8);
-            ClassFile::ConstUTF8Info *utf8Info = cpInfo.asUTF8Info();
-
-            std::stringstream s;
-
-            for (int i = 0; i < utf8Info->getLength(); i++) {
-                s << utf8Info->getByte(i);
-            }
-
-            return s.str();
-        }
+        void addConstantToPool(const ClassFile::CPInfo& constant) { constantPool.push_back(constant); }
+        std::string getConstantUTF8(int idx);
     private:
         std::vector<ClassFile::CPInfo> constantPool;
     };
 
     class Parser {
     public:
-        Parser(Reader *reader) {
-            this->reader = reader;
-            this->context = new ParserContext();
-        }
+        explicit Parser(Reader *reader) : reader(reader), context(new ParserContext()) {}
 
         ~Parser() {
             delete context;
         }
 
         ClassFile consumeClassFile();
+
         void consumeMagic();
         ClassFile::CPInfo consumeConstantPoolInfo();
         ClassFile::FieldInfo consumeFieldInfo();

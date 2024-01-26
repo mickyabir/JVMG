@@ -12,6 +12,7 @@
 #include <map>
 #include <cstdint>
 #include <optional>
+
 #include "jvmg/util/util.h"
 
 namespace jvmg {
@@ -74,17 +75,8 @@ namespace jvmg {
         int getSizeInBytes() { return 1 + (operand1.has_value() ? 1 : 0) + (operand2.has_value() ? 1 : 0); }
 
     private:
-        void _serialize() override {
-            serializeBytes(opcodeByte);
-            if (operand1.has_value()) {
-                serializeBytes(operand1.value());
+        void _serialize() override;
 
-                // Nested because operand2 should not have a value if operand1 does not
-                if (operand2.has_value()) {
-                    serializeBytes(operand2.value());
-                }
-            }
-        }
         std::uint8_t opcodeByte;
     protected:
         Opcode opcode;
@@ -96,135 +88,37 @@ namespace jvmg {
 
     class ConstInst : public Instruction {
     public:
-        explicit ConstInst(std::uint8_t opcodeByte) : Instruction(opcodeByte) {
-            switch (opcodeByte) {
-                case 0x01: {
-                    type = ReferenceTy;
-                    value = NULL_VAL;
-                    break;
-                }
-                case 0x02: {
-                    type = IntTy;
-                    value = M1;
-                    break;
-                }
-                case 0x03: {
-                    type = IntTy;
-                    value = ZERO;
-                    break;
-                }
-                case 0x04: {
-                    type = IntTy;
-                    value = ONE;
-                    break;
-                }
-                case 0x05: {
-                    type = IntTy;
-                    value = TWO;
-                    break;
-                }
-                case 0x06: {
-                    type = IntTy;
-                    value = THREE;
-                    break;
-                }
-                case 0x07: {
-                    type = IntTy;
-                    value = FOUR;
-                    break;
-                }
-                case 0x08: {
-                    type = IntTy;
-                    value = FIVE;
-                    break;
-                }
-                default:
-                    throw std::invalid_argument("Invalid const instruction opcode: " + std::to_string(opcodeByte));
-            }
-        }
+        explicit ConstInst(std::uint8_t opcodeByte);
     };
 
     class LoadInst : public Instruction {
     public:
-        LoadInst(std::uint16_t opcodeByte) : Instruction(opcodeByte) {
-            switch (opcodeByte) {
-                case 0x2A: {
-                    type = ReferenceTy;
-                    value = ZERO;
-                    break;
-                }
-                default:
-                    throw std::invalid_argument("Invalid load instruction opcode: " + std::to_string(opcodeByte));
-            }
-        }
+        explicit LoadInst(std::uint16_t opcodeByte);
     };
 
     class StoreInst : public Instruction {
     public:
-        StoreInst(std::uint16_t opcodeByte) : Instruction(opcodeByte) {
-            switch (opcodeByte) {
-                case 0x3C: {
-                    type = IntTy;
-                    break;
-                }
-                default:
-                    throw std::invalid_argument("Invalid store instruction opcode: " + std::to_string(opcodeByte));
-            }
-        }
+        explicit StoreInst(std::uint16_t opcodeByte);
     };
-
 
     class BiPushInst : public Instruction {
     public:
-        explicit BiPushInst(std::uint8_t opcodeByte, std::uint8_t operand) : Instruction(opcodeByte, operand) {
-            type = ByteTy;
-        }
+        explicit BiPushInst(std::uint8_t opcodeByte, std::uint8_t operand);
     };
+
     class SiPushInst : public Instruction {
     public:
-        SiPushInst(std::uint8_t opcodeByte, std::uint8_t operand1, std::uint8_t operand2) : Instruction(opcodeByte, operand1, operand2) {
-            type = ShortTy;
-        }
+        SiPushInst(std::uint8_t opcodeByte, std::uint8_t operand1, std::uint8_t operand2);
     };
 
     class ReturnInst : public Instruction {
     public:
-        explicit ReturnInst(std::uint16_t opcodeByte) : Instruction(opcodeByte) {
-            switch (opcodeByte) {
-                case 0xAC: {
-                    type = IntTy;
-                    break;
-                }
-                case 0xAD: {
-                    type = LongTy;
-                    break;
-                }
-                case 0xAE: {
-                    type = FloatTy;
-                    break;
-                }
-                case 0xAF: {
-                    type = DoubleTy;
-                    break;
-                }
-                case 0xB0: {
-                    type = ReferenceTy;
-                    break;
-                }
-                case 0xB1: {
-                    break;
-                }
-                default:
-                    throw std::invalid_argument("Invalid return instruction opcode: " + std::to_string(opcodeByte));
-            }
-        }
+        explicit ReturnInst(std::uint16_t opcodeByte);
     };
 
     class IndexInstruction: public Instruction {
     public:
-        IndexInstruction(std::uint8_t opcodeByte, std::uint8_t indexByte1, std::uint8_t indexByte2) : Instruction(opcodeByte, indexByte1, indexByte2) {
-            index = (indexByte1 << 8) | indexByte2;
-        }
+        IndexInstruction(std::uint8_t opcodeByte, std::uint8_t indexByte1, std::uint8_t indexByte2);
 
         void setIndex(std::uint16_t index) {
             this->index = index;
@@ -232,9 +126,8 @@ namespace jvmg {
             operand2 = index & 0xFF;
         }
 
-        std::uint16_t getIndex() {
-            return index;
-        }
+        std::uint16_t getIndex() { return index; }
+
     private:
         std::uint16_t index;
     };

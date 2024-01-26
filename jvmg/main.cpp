@@ -1,7 +1,6 @@
 #include "jvmg/bytecode/reader.h"
 #include "jvmg/IR/instruction.h"
 #include "jvmg/bytecode/parser/parser.h"
-#include "jvmg/codegen/codegen.h"
 
 using namespace jvmg;
 
@@ -10,8 +9,7 @@ int main() {
 
     Parser parser = Parser(&reader);
     auto classFile = parser.consumeClassFile();
-
-    outputBinaryFromClassfile(classFile, "test.class");
+    classFile.outputToFile("test.class");
 
     return 0;
 }

@@ -4,6 +4,24 @@ using namespace jvmg;
 
 using CPInfo = ClassFile::CPInfo;
 
+std::string ParserContext::getConstantUTF8(int idx) {
+    // Constant pool indices start at 1, so subtract 1
+    int constantIdx = idx - 1;
+    assert(constantIdx < constantPool.size() - 1);
+
+    auto cpInfo = constantPool.at(constantIdx);
+    assert(cpInfo.tag == ClassFile::CPInfo::CONSTANT_Utf8);
+    ClassFile::ConstUTF8Info *utf8Info = cpInfo.asUTF8Info();
+
+    std::stringstream s;
+
+    for (int i = 0; i < utf8Info->getLength(); i++) {
+        s << utf8Info->getByte(i);
+    }
+
+    return s.str();
+}
+
 ClassFile Parser::consumeClassFile() {
     consumeMagic();
 

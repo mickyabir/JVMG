@@ -10,6 +10,7 @@
 #include "jvmg/IR/attribute.h"
 
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 namespace jvmg {
@@ -35,7 +36,7 @@ namespace jvmg {
                 CONSTANT_InvokeDynamic = 18,
             };
 
-            CPInfo(ConstantType tag, std::vector<std::uint8_t> info) : tag(tag), info(info) {}
+            CPInfo(ConstantType tag, std::vector<std::uint8_t> info) : tag(tag), info(std::move(info)) {}
 
             ConstUTF8Info *asUTF8Info() { return tag == CONSTANT_Utf8 ? (ConstUTF8Info*)this : nullptr; }
 
@@ -43,23 +44,12 @@ namespace jvmg {
             std::vector<std::uint8_t> info;
 
         private:
-            void _serialize() override {
-                serializeBytes(tag);
-                for (auto& byte : info) {
-                    serializeBytes(byte);
-                }
-            }
-
+            void _serialize() override;
         };
 
         struct ConstUTF8Info : CPInfo {
-            std::uint16_t getLength() {
-                return (info[0] << 8) | info[1];
-            }
-
-            std::uint8_t getByte(int idx) {
-                return info[idx + 2];
-            }
+            std::uint16_t getLength();
+            std::uint8_t getByte(int idx);
         };
 
         enum ClassAccessFlags : std::uint16_t {
@@ -103,18 +93,8 @@ namespace jvmg {
             std::uint16_t descriptorIndex;
             std::uint16_t attributesCount;
             std::vector<AttributeInfo*> attributes;
-
         private:
-            void _serialize() override {
-                serializeBytes(accessFlags);
-                serializeBytes(nameIndex);
-                serializeBytes(descriptorIndex);
-                serializeBytes(attributesCount);
-
-                for (auto& attribute : attributes) {
-                    insertBytes(attribute->serialize());
-                }
-            }
+            void _serialize() override;
         };
 
         struct MethodInfo : public Serializable {
@@ -153,15 +133,7 @@ namespace jvmg {
             std::vector<AttributeInfo*> attributes;
 
         private:
-            void _serialize() override {
-                serializeBytes(accessFlags);
-                serializeBytes(nameIndex);
-                serializeBytes(descriptorIndex);
-                serializeBytes(attributesCount);
-                for (auto& attributeInfo : attributes) {
-                    insertBytes(attributeInfo->serialize());
-                }
-            }
+            void _serialize() override;
         };
 
         ClassFile(const std::uint16_t &minorVersion, const std::uint16_t &majorVersion,
@@ -170,15 +142,13 @@ namespace jvmg {
                   std::vector<std::uint16_t> interfaces, const std::uint16_t &fieldsCount, std::vector<FieldInfo> fields,
                   const std::uint16_t &methodCount, std::vector<MethodInfo> methods, const std::uint16_t &attributesCount,
                   std::vector<AttributeInfo*> attributes) : minorVersion(minorVersion), majorVersion(majorVersion),
-                                                           constantPoolCount(constantPoolCount), constantPool(std::move(constantPool)),
-                                                           accessFlags(accessFlags), thisClass(thisClass), superClass(superClass),
-                                                           interfaceCount(interfaceCount), interfaces(std::move(interfaces)),
-                                                           fieldsCount(fieldsCount), fields(std::move(fields)), methodCount(methodCount),
-                                                           methods(std::move(methods)), attributesCount(attributesCount),
-                                                           attributes(std::move(attributes)) {}
+                                                            constantPoolCount(constantPoolCount), constantPool(std::move(constantPool)),
+                                                            accessFlags(accessFlags), thisClass(thisClass), superClass(superClass),
+                                                            interfaceCount(interfaceCount), interfaces(std::move(interfaces)),
+                                                            fieldsCount(fieldsCount), fields(std::move(fields)), methodsCount(methodCount),
+                                                            methods(std::move(methods)), attributesCount(attributesCount),
+                                                            attributes(std::move(attributes)) {}
 
-        [[nodiscard]] const std::vector<MethodInfo>& getMethods() const { return methods; }
-        [[nodiscard]] const std::vector<AttributeInfo*>& getAttributes() const { return attributes; }
 
         [[nodiscard]] std::uint32_t getMagic() const { return magic; }
         [[nodiscard]] std::uint16_t getMinorVersion() const { return minorVersion; }
@@ -190,44 +160,15 @@ namespace jvmg {
         [[nodiscard]] std::uint16_t getSuperClass() const { return superClass; }
         [[nodiscard]] std::uint16_t getInterfaceCount() const { return interfaceCount; }
         [[nodiscard]] const std::vector<std::uint16_t>& getInterfaces() const { return interfaces; }
+        [[nodiscard]] std::uint16_t getMethodsCount() const { return methodsCount; }
+        [[nodiscard]] const std::vector<MethodInfo>& getMethods() const { return methods; }
         [[nodiscard]] std::uint16_t getFieldsCount() const { return fieldsCount; }
         [[nodiscard]] const std::vector<FieldInfo>& getFields() const { return fields; }
+        [[nodiscard]] std::uint16_t getAttributesCount() const { return attributesCount; }
+        [[nodiscard]] const std::vector<AttributeInfo*>& getAttributes() const { return attributes; }
 
     private:
-        void _serialize() override {
-            serializeBytes(magic);
-            serializeBytes(minorVersion);
-            serializeBytes(majorVersion);
-
-            serializeBytes(constantPoolCount);
-            for (auto& constant : constantPool) {
-                insertBytes(constant.serialize());
-            }
-
-            serializeBytes(accessFlags);
-            serializeBytes(thisClass);
-            serializeBytes(superClass);
-
-            serializeBytes(interfaceCount);
-            for (auto& interface : interfaces) {
-                serializeBytes(interface);
-            }
-
-            serializeBytes(fieldsCount);
-            for (auto& field : fields) {
-                insertBytes(field.serialize());
-            }
-
-            serializeBytes(methodCount);
-            for (auto& method : methods) {
-                insertBytes((method.serialize()));
-            }
-
-            serializeBytes(attributesCount);
-            for (auto& attribute : attributes) {
-                insertBytes(attribute->serialize());
-            }
-        }
+        void _serialize() override;
 
         const std::uint32_t magic = CLASS_MAGIC;
         std::uint16_t minorVersion;
@@ -241,7 +182,7 @@ namespace jvmg {
         std::vector<std::uint16_t> interfaces;
         std::uint16_t fieldsCount;
         std::vector<FieldInfo> fields;
-        std::uint16_t methodCount;
+        std::uint16_t methodsCount;
         std::vector<MethodInfo> methods;
         std::uint16_t attributesCount;
         std::vector<AttributeInfo*> attributes;
