@@ -2,169 +2,184 @@
 
 using namespace jvmg;
 
-Instruction::Opcode Instruction::getOpcodeFromOpcodeByte(std::uint16_t opcodeByte) {
-    if (opcodeByte == 0x0) {
-        return Instruction::NOP;
-    } else if (0x01 <= opcodeByte && opcodeByte <= 0x0F) {
-        return Instruction::CONST;
-    } else if (opcodeByte == 0x10) {
-        return Instruction::BI_PUSH;
-    } else if (opcodeByte == 0x11) {
-        return Instruction::SI_PUSH;
-    } else if (0x12 <= opcodeByte && opcodeByte <= 0x14) {
-        return Instruction::LDC;
-    } else if (0x15 <= opcodeByte && opcodeByte <= 0x35) {
-        return Instruction::LOAD;
-    } else if (0x36 <= opcodeByte && opcodeByte <= 0x56) {
-        return Instruction::STORE;
-    } else if (0x57 <= opcodeByte && opcodeByte <= 0x58) {
-        return Instruction::POP;
-    } else if (0x59 <= opcodeByte && opcodeByte <= 0x5E) {
-        return Instruction::DUP;
-    } else if (opcodeByte == 0x5F) {
-        return Instruction::SWAP;
-    } else if (0x60 <= opcodeByte && opcodeByte <= 0x63) {
-        return Instruction::ADD;
-    } else if (0x64 <= opcodeByte && opcodeByte <= 0x67) {
-        return Instruction::SUB;
-    } else if (0x68 <= opcodeByte && opcodeByte <= 0x6B) {
-        return Instruction::MUL;
-    } else if (0x6C <= opcodeByte && opcodeByte <= 0x6F) {
-        return Instruction::DIV;
-    } else if (0x70 <= opcodeByte && opcodeByte <= 0x73) {
-        return Instruction::REM;
-    } else if (0x74 <= opcodeByte && opcodeByte <= 0x77) {
-        return Instruction::NEG;
-    } else if (0x78 <= opcodeByte && opcodeByte <= 0x79) {
-        return Instruction::SHL;
-    } else if (0x7A <= opcodeByte && opcodeByte <= 0x7D) {
-        return Instruction::SHR;
-    } else if (0x7E <= opcodeByte && opcodeByte <= 0x7F) {
-        return Instruction::AND;
-    } else if (0x80 <= opcodeByte && opcodeByte <= 0x81) {
-        return Instruction::OR;
-    } else if (0x82 <= opcodeByte && opcodeByte <= 0x83) {
-        return Instruction::XOR;
-    } else if (opcodeByte == 0x84) {
-        return Instruction::IINC;
-    } else if (0x85 <= opcodeByte && opcodeByte <= 0x93) {
-        return Instruction::CONVERT;
-    } else if (0x94 <= opcodeByte && opcodeByte <= 0x98) {
-        return Instruction::CMP;
-    } else if (0x99 <= opcodeByte && opcodeByte <= 0x9E) {
-        return Instruction::IF_BRANCH;
-    } else if (0x9F <= opcodeByte && opcodeByte <= 0xA6) {
-        return Instruction::IF_CMP_BRANCH;
-    } else if (opcodeByte == 0xA7) {
-        return Instruction::GOTO;
-    } else if (opcodeByte == 0xA8) {
-        return Instruction::JSR;
-    } else if (opcodeByte == 0xA9) {
-        return Instruction::RET;
-    } else if (opcodeByte == 0xAA) {
-        return Instruction::TABLE_SWITCH;
-    } else if (opcodeByte == 0xAB) {
-        return Instruction::LOOKUP_SWITCH;
-    } else if (0xAC <= opcodeByte && opcodeByte <= 0xB1) {
-        return Instruction::RETURN;
-    } else if (opcodeByte == 0xB2) {
-        return Instruction::GET_STATIC;
-    } else if (opcodeByte == 0xB3) {
-        return Instruction::GET_STATIC;
-    } else if (opcodeByte == 0xB4) {
-        return Instruction::GET_FIELD;
-    } else if (opcodeByte == 0xB5) {
-        return Instruction::PUT_FIELD;
-    } else if (opcodeByte == 0xB6) {
-        return Instruction::INVOKE_VIRTUAL;
-    } else if (opcodeByte == 0xB7) {
-        return Instruction::INVOKE_SPECIAL;
-    } else if (opcodeByte == 0xB8) {
-        return Instruction::INVOKE_STATIC;
-    } else if (opcodeByte == 0xB9) {
-        return Instruction::INVOKE_INTERFACE;
-    } else if (opcodeByte == 0xBA) {
-        return Instruction::INVOKE_DYNAMIC;
-    } else if (opcodeByte == 0xBB) {
-        return Instruction::NEW;
-    } else if (0xBC <= opcodeByte && opcodeByte <= 0xBD) {
-        return Instruction::NEW_ARRAY;
-    } else if (opcodeByte == 0xBE) {
-        return Instruction::ARRAY_LENGTH;
-    } else if (opcodeByte == 0xBF) {
-        return Instruction::ATHROW;
-    } else if (opcodeByte == 0xC0) {
-        return Instruction::CHECK_CAST;
-    } else if (opcodeByte == 0xC1) {
-        return Instruction::INSTANCE_OF;
-    } else if (opcodeByte == 0xC2) {
-        return Instruction::MONITOR_ENTER;
-    } else if (opcodeByte == 0xC3) {
-        return Instruction::MONITOR_EXIT;
-    } else if (opcodeByte == 0xC4) {
-        return Instruction::WIDE;
-    } else if (opcodeByte == 0xC5) {
-        return Instruction::MULTI_ANEW_ARRAY;
-    } else if (opcodeByte == 0xC6) {
-        return Instruction::IF_NULL;
-    } else if (opcodeByte == 0xC7) {
-        return Instruction::IF_NO_NULL;
-    } else if (opcodeByte == 0xC8) {
-        return Instruction::GOTO_W;
-    } else if (opcodeByte == 0xC9) {
-        return Instruction::JSR_W;
-    } else if (opcodeByte == 0xCA) {
-        return Instruction::BREAK_POINT;
-    } else if (opcodeByte == 0xFE) {
-        return Instruction::IMP_DEP_1;
-    } else if (opcodeByte == 0xFF) {
-        return Instruction::IMP_DEP_2;
-    } else {
-        return Instruction::INVALID_INSTRUCTION_OPCODE;
-    }
-}
+static std::map<Instruction::Opcode, Instruction> staticInstMap = {
+        {Instruction::ACONST_NULL, AConstNull},
+
+        // iconst_<n>
+        {Instruction::ICONST_M1, IConstM1},
+        {Instruction::ICONST_0, IConst0},
+        {Instruction::ICONST_1, IConst1},
+        {Instruction::ICONST_2, IConst2},
+        {Instruction::ICONST_3, IConst3},
+        {Instruction::ICONST_4, IConst4},
+        {Instruction::ICONST_5, IConst5},
+
+        // lconst_<n>
+        {Instruction::LCONST_0, LConst0},
+        {Instruction::LCONST_1, LConst1},
+
+        // fconst_<n>
+        {Instruction::FCONST_0, FConst0},
+        {Instruction::FCONST_1, FConst1},
+        {Instruction::FCONST_2, FConst2},
+
+        // dconst_<n>
+        {Instruction::DCONST_0, DConst0},
+        {Instruction::DCONST_1, DConst1},
+
+        // iload_<n>
+        {Instruction::ILOAD_0, ILoad0},
+        {Instruction::ILOAD_1, ILoad1},
+        {Instruction::ILOAD_2, ILoad2},
+        {Instruction::ILOAD_3, ILoad3},
+
+        // lload_<n>
+        {Instruction::LLOAD_0, LLoad0},
+        {Instruction::LLOAD_1, LLoad1},
+        {Instruction::LLOAD_2, LLoad2},
+        {Instruction::LLOAD_3, LLoad3},
+
+        // fload_<n>
+        {Instruction::FLOAD_0, FLoad0},
+        {Instruction::FLOAD_1, FLoad1},
+        {Instruction::FLOAD_2, FLoad2},
+        {Instruction::FLOAD_3, FLoad3},
+
+        // dload_<n>
+        {Instruction::DLOAD_0, DLoad0},
+        {Instruction::DLOAD_1, DLoad1},
+        {Instruction::DLOAD_2, DLoad2},
+        {Instruction::DLOAD_3, DLoad3},
+
+        // aload_<n>
+        {Instruction::ALOAD_0, ALoad0},
+        {Instruction::ALOAD_1, ALoad1},
+        {Instruction::ALOAD_2, ALoad2},
+        {Instruction::ALOAD_3, ALoad3},
+
+        // Taload_<n>
+        {Instruction::IALOAD, IALoad},
+        {Instruction::LALOAD, LALoad},
+        {Instruction::FALOAD, FALoad},
+        {Instruction::DALOAD, DALoad},
+        {Instruction::AALOAD, AALoad},
+        {Instruction::BALOAD, BALoad},
+        {Instruction::CALOAD, CALoad},
+        {Instruction::SALOAD, SALoad},
+
+        // istore_<n>
+        {Instruction::ISTORE_0, IStore0},
+        {Instruction::ISTORE_1, IStore1},
+        {Instruction::ISTORE_2, IStore2},
+        {Instruction::ISTORE_3, IStore3},
+
+        // lstore_<n>
+        {Instruction::LSTORE_0, LStore0},
+        {Instruction::LSTORE_1, LStore1},
+        {Instruction::LSTORE_2, LStore2},
+        {Instruction::LSTORE_3, LStore3},
+
+
+
+
+        {Instruction::IRETURN, IReturn},
+
+        {Instruction::RETURN, Return},
+
+};
 
 Instruction Parser::consumeInstruction() {
     std::uint8_t opcodeByte = consumeOneByte();
     auto opcode = Instruction::getOpcodeFromOpcodeByte(opcodeByte);
 
+    if (staticInstMap.find(opcode) != staticInstMap.end()) {
+        return staticInstMap[opcode];
+    }
+
     switch (opcode) {
-        case Instruction::CONST: {
-            return ConstInst(opcodeByte);
-        }
-        case Instruction::BI_PUSH: {
+        case Instruction::BIPUSH: {
             auto operand = consumeOneByte();
-            return BiPushInst(opcodeByte, operand);
+            return BiPush(operand);
         }
-        case Instruction::SI_PUSH: {
+        case Instruction::SIPUSH: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return SiPushInst(opcodeByte, operand1, operand2);
+            return SiPush(operand1, operand2);
         }
-        case Instruction::LOAD: {
-            return LoadInst(opcodeByte);
+        case Instruction::LDC: {
+            auto operand = consumeOneByte();
+            return Ldc(operand);
         }
-        case Instruction::STORE: {
-            return StoreInst(opcodeByte);
-        }
-        case Instruction::RETURN: {
-            return ReturnInst(opcodeByte);
-        }
-        case Instruction::GET_FIELD: {
+        case Instruction::LDC_W: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return GetFieldInst(opcodeByte, operand1, operand2);
+            return LdcW(operand1, operand2);
         }
-        case Instruction::PUT_FIELD: {
+        case Instruction::LDC2_W: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return PutFieldInst(opcodeByte, operand1, operand2);
+            return Ldc2W(operand1, operand2);
         }
-        case Instruction::INVOKE_SPECIAL: {
+        case Instruction::ILOAD: {
+            auto operand = consumeOneByte();
+            return ILoad(operand);
+        }
+        case Instruction::LLOAD: {
+            auto operand = consumeOneByte();
+            return LLoad(operand);
+        }
+        case Instruction::FLOAD: {
+            auto operand = consumeOneByte();
+            return FLoad(operand);
+        }
+        case Instruction::DLOAD: {
+            auto operand = consumeOneByte();
+            return DLoad(operand);
+        }
+        case Instruction::ALOAD: {
+            auto operand = consumeOneByte();
+            return ALoad(operand);
+        }
+        case Instruction::ISTORE: {
+            auto operand = consumeOneByte();
+            return IStore(operand);
+        }
+        case Instruction::LSTORE: {
+            auto operand = consumeOneByte();
+            return LStore(operand);
+        }
+        case Instruction::FSTORE: {
+            auto operand = consumeOneByte();
+            return FStore(operand);
+        }
+        case Instruction::DSTORE: {
+            auto operand = consumeOneByte();
+            return DStore(operand);
+        }
+        case Instruction::ASTORE: {
+            auto operand = consumeOneByte();
+            return AStore(operand);
+        }
+
+        case Instruction::GETFIELD: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return InvokeSpecialInst(opcodeByte, operand1, operand2);
+            return GetField(operand1, operand2);
         }
+        case Instruction::PUTFIELD: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            return PutField(operand1, operand2);
+        }
+
+        case Instruction::INVOKESPECIAL: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            return InvokeSpecial(operand1, operand2);
+        }
+
+
+
         case Instruction::INVALID_INSTRUCTION_OPCODE:
         default:
             throw std::invalid_argument("Opcode not implemented: " + std::to_string(opcodeByte));

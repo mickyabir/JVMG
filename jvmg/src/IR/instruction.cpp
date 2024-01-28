@@ -2,126 +2,332 @@
 
 using namespace jvmg;
 
+std::array<Instruction::Opcode, 256> Instruction::opcodeLookup = {
+    Instruction::Opcode::NOP,
+    Instruction::Opcode::ACONST_NULL,
+    Instruction::Opcode::ICONST_M1,
+    Instruction::Opcode::ICONST_0,
+    Instruction::Opcode::ICONST_1,
+    Instruction::Opcode::ICONST_2,
+    Instruction::Opcode::ICONST_3,
+    Instruction::Opcode::ICONST_4,
+    Instruction::Opcode::ICONST_5,
+    Instruction::Opcode::LCONST_0,
+    Instruction::Opcode::LCONST_1,
+    Instruction::Opcode::FCONST_0,
+    Instruction::Opcode::FCONST_1,
+    Instruction::Opcode::FCONST_2,
+    Instruction::Opcode::DCONST_0,
+    Instruction::Opcode::DCONST_1,
+    Instruction::Opcode::BIPUSH,
+    Instruction::Opcode::SIPUSH,
+    Instruction::Opcode::LDC,
+    Instruction::Opcode::LDC_W,
+    Instruction::Opcode::LDC2_W,
+    Instruction::Opcode::ILOAD,
+    Instruction::Opcode::LLOAD,
+    Instruction::Opcode::FLOAD,
+    Instruction::Opcode::DLOAD,
+    Instruction::Opcode::ALOAD,
+    Instruction::Opcode::ILOAD_0,
+    Instruction::Opcode::ILOAD_1,
+    Instruction::Opcode::ILOAD_2,
+    Instruction::Opcode::ILOAD_3,
+    Instruction::Opcode::LLOAD_0,
+    Instruction::Opcode::LLOAD_1,
+    Instruction::Opcode::LLOAD_2,
+    Instruction::Opcode::LLOAD_3,
+    Instruction::Opcode::FLOAD_0,
+    Instruction::Opcode::FLOAD_1,
+    Instruction::Opcode::FLOAD_2,
+    Instruction::Opcode::FLOAD_3,
+    Instruction::Opcode::DLOAD_0,
+    Instruction::Opcode::DLOAD_1,
+    Instruction::Opcode::DLOAD_2,
+    Instruction::Opcode::DLOAD_3,
+    Instruction::Opcode::ALOAD_0,
+    Instruction::Opcode::ALOAD_1,
+    Instruction::Opcode::ALOAD_2,
+    Instruction::Opcode::ALOAD_3,
+    Instruction::Opcode::IALOAD,
+    Instruction::Opcode::LALOAD,
+    Instruction::Opcode::FALOAD,
+    Instruction::Opcode::DALOAD,
+    Instruction::Opcode::AALOAD,
+    Instruction::Opcode::BALOAD,
+    Instruction::Opcode::CALOAD,
+    Instruction::Opcode::SALOAD,
+    Instruction::Opcode::ISTORE,
+    Instruction::Opcode::LSTORE,
+    Instruction::Opcode::FSTORE,
+    Instruction::Opcode::DSTORE,
+    Instruction::Opcode::ASTORE,
+    Instruction::Opcode::ISTORE_0,
+    Instruction::Opcode::ISTORE_1,
+    Instruction::Opcode::ISTORE_2,
+    Instruction::Opcode::ISTORE_3,
+    Instruction::Opcode::LSTORE_0,
+    Instruction::Opcode::LSTORE_1,
+    Instruction::Opcode::LSTORE_2,
+    Instruction::Opcode::LSTORE_3,
+    Instruction::Opcode::FSTORE_0,
+    Instruction::Opcode::FSTORE_1,
+    Instruction::Opcode::FSTORE_2,
+    Instruction::Opcode::FSTORE_3,
+    Instruction::Opcode::DSTORE_0,
+    Instruction::Opcode::DSTORE_1,
+    Instruction::Opcode::DSTORE_2,
+    Instruction::Opcode::DSTORE_3,
+    Instruction::Opcode::ASTORE_0,
+    Instruction::Opcode::ASTORE_1,
+    Instruction::Opcode::ASTORE_2,
+    Instruction::Opcode::ASTORE_3,
+    Instruction::Opcode::IASTORE,
+    Instruction::Opcode::LASTORE,
+    Instruction::Opcode::FASTORE,
+    Instruction::Opcode::DASTORE,
+    Instruction::Opcode::AASTORE,
+    Instruction::Opcode::BASTORE,
+    Instruction::Opcode::CASTORE,
+    Instruction::Opcode::SASTORE,
+    Instruction::Opcode::POP,
+    Instruction::Opcode::POP2,
+    Instruction::Opcode::DUP,
+    Instruction::Opcode::DUP_X1,
+    Instruction::Opcode::DUP_X2,
+    Instruction::Opcode::DUP2,
+    Instruction::Opcode::DUP2_X1,
+    Instruction::Opcode::DUP2_X2,
+    Instruction::Opcode::SWAP,
+    Instruction::Opcode::IADD,
+    Instruction::Opcode::LADD,
+    Instruction::Opcode::FADD,
+    Instruction::Opcode::DADD,
+    Instruction::Opcode::ISUB,
+    Instruction::Opcode::LSUB,
+    Instruction::Opcode::FSUB,
+    Instruction::Opcode::DSUB,
+    Instruction::Opcode::IMUL,
+    Instruction::Opcode::LMUL,
+    Instruction::Opcode::FMUL,
+    Instruction::Opcode::DMUL,
+    Instruction::Opcode::IDIV,
+    Instruction::Opcode::LDIV,
+    Instruction::Opcode::FDIV,
+    Instruction::Opcode::DDIV,
+    Instruction::Opcode::IREM,
+    Instruction::Opcode::LREM,
+    Instruction::Opcode::FREM,
+    Instruction::Opcode::DREM,
+    Instruction::Opcode::INEG,
+    Instruction::Opcode::LNEG,
+    Instruction::Opcode::FNEG,
+    Instruction::Opcode::DNEG,
+    Instruction::Opcode::ISHL,
+    Instruction::Opcode::LSHL,
+    Instruction::Opcode::ISHR,
+    Instruction::Opcode::LSHR,
+    Instruction::Opcode::IUSHR,
+    Instruction::Opcode::LUSHR,
+    Instruction::Opcode::IAND,
+    Instruction::Opcode::LAND,
+    Instruction::Opcode::IOR,
+    Instruction::Opcode::LOR,
+    Instruction::Opcode::IXOR,
+    Instruction::Opcode::LXOR,
+    Instruction::Opcode::IINC,
+    Instruction::Opcode::I2L,
+    Instruction::Opcode::I2F,
+    Instruction::Opcode::I2D,
+    Instruction::Opcode::L2I,
+    Instruction::Opcode::L2F,
+    Instruction::Opcode::L2D,
+    Instruction::Opcode::F2I,
+    Instruction::Opcode::F2L,
+    Instruction::Opcode::F2D,
+    Instruction::Opcode::D2I,
+    Instruction::Opcode::D2L,
+    Instruction::Opcode::D2F,
+    Instruction::Opcode::I2B,
+    Instruction::Opcode::I2C,
+    Instruction::Opcode::I2S,
+    Instruction::Opcode::LCMP,
+    Instruction::Opcode::FCMPL,
+    Instruction::Opcode::FCMPG,
+    Instruction::Opcode::DCMPL,
+    Instruction::Opcode::DCMPG,
+    Instruction::Opcode::IFEQ,
+    Instruction::Opcode::IFNE,
+    Instruction::Opcode::IFLT,
+    Instruction::Opcode::IFGE,
+    Instruction::Opcode::IFGT,
+    Instruction::Opcode::IFLE,
+    Instruction::Opcode::IF_ICMPEQ,
+    Instruction::Opcode::IF_ICMPNE,
+    Instruction::Opcode::IF_ICMPLT,
+    Instruction::Opcode::IF_ICMPGE,
+    Instruction::Opcode::IF_ICMPGT,
+    Instruction::Opcode::IF_ICMPLE,
+    Instruction::Opcode::IF_ACMPEQ,
+    Instruction::Opcode::IF_ACMPNE,
+    Instruction::Opcode::GOTO,
+    Instruction::Opcode::JSR,
+    Instruction::Opcode::RET,
+    Instruction::Opcode::TABLESWITCH,
+    Instruction::Opcode::LOOKUPSWITCH,
+    Instruction::Opcode::IRETURN,
+    Instruction::Opcode::LRETURN,
+    Instruction::Opcode::FRETURN,
+    Instruction::Opcode::DRETURN,
+    Instruction::Opcode::ARETURN,
+    Instruction::Opcode::RETURN,
+    Instruction::Opcode::GETSTATIC,
+    Instruction::Opcode::PUTSTATIC,
+    Instruction::Opcode::GETFIELD,
+    Instruction::Opcode::PUTFIELD,
+    Instruction::Opcode::INVOKEVIRTUAL,
+    Instruction::Opcode::INVOKESPECIAL,
+    Instruction::Opcode::INVOKESTATIC,
+    Instruction::Opcode::INVOKEINTERFACE,
+    Instruction::Opcode::INVOKEDYNAMIC,
+    Instruction::Opcode::NEW,
+    Instruction::Opcode::NEWARRAY,
+    Instruction::Opcode::ANEWARRAY,
+    Instruction::Opcode::ARRAYLENGTH,
+    Instruction::Opcode::ATHROW,
+    Instruction::Opcode::CHECKCAST,
+    Instruction::Opcode::INSTANCEOF,
+    Instruction::Opcode::MONITORENTER,
+    Instruction::Opcode::MONITOREXIT,
+    Instruction::Opcode::WIDE,
+    Instruction::Opcode::MULTIANEWARRAY,
+    Instruction::Opcode::IFNULL,
+    Instruction::Opcode::IFNONNULL,
+    Instruction::Opcode::GOTO_W,
+    Instruction::Opcode::JSR_W,
+    Instruction::Opcode::BREAKPOINT,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::INVALID_INSTRUCTION_OPCODE,
+    Instruction::Opcode::IMPDEP1,
+    Instruction::Opcode::IMPDEP2
+};
+
+std::map<std::uint8_t, int> Instruction::opcodeArgCountMap = {
+        // Four bytes
+        {0xB9, 4},
+        {0xBA, 4},
+        {0xC8, 4},
+        {0xC9, 4},
+
+        // Three bytes
+        {0xC5, 3},
+
+        // Two bytes
+        {0x11, 2},
+        {0x13, 2},
+        {0x14, 2},
+        {0x84, 2},
+        {0x99, 2},
+        {0x9A, 2},
+        {0x9B, 2},
+        {0x9C, 2},
+        {0x9D, 2},
+        {0x9E, 2},
+        {0x9F, 2},
+        {0xA0, 2},
+        {0xA1, 2},
+        {0xA2, 2},
+        {0xA3, 2},
+        {0xA4, 2},
+        {0xA5, 2},
+        {0xA6, 2},
+        {0xA7, 2},
+        {0xB2, 2},
+        {0xB3, 2},
+        {0xB4, 2},
+        {0xB5, 2},
+        {0xB6, 2},
+        {0xB7, 2},
+        {0xB8, 2},
+        {0xBB, 2},
+        {0xBD, 2},
+        {0xC0, 2},
+        {0xC1, 2},
+        {0xC6, 2},
+        {0xC7, 2},
+
+        // One byte
+        {0x10, 1},
+        {0x12, 1},
+        {0x13, 1},
+        {0x14, 1},
+        {0x15, 1},
+        {0x16, 1},
+        {0x17, 1},
+        {0x18, 1},
+        {0x19, 1},
+        {0x36, 1},
+        {0x37, 1},
+        {0x38, 1},
+        {0x39, 1},
+        {0x3A, 1},
+        {0xBC, 1},
+};
+
+Instruction::Opcode Instruction::getOpcodeFromOpcodeByte(std::uint8_t opcodeByte) {
+    return opcodeLookup[opcodeByte];
+}
+
+int Instruction::getUniformArgCountFromOpcodeByte(std::uint8_t opcodeByte) {
+    if (opcodeArgCountMap.find(opcodeByte) == opcodeArgCountMap.end()) {
+        return 0;
+    } else {
+        return opcodeArgCountMap[opcodeByte];
+    }
+}
+
 void Instruction::_serialize() {
     serializeBytes(opcodeByte);
-    if (operand1.has_value()) {
-        serializeBytes(operand1.value());
-
-        // Nested because operand2 should not have a value if operand1 does not
-        if (operand2.has_value()) {
-            serializeBytes(operand2.value());
-        }
+    for (auto& operand : operands) {
+        serializeBytes(operand);
     }
-}
-
-ConstInst::ConstInst(std::uint8_t opcodeByte) : Instruction(opcodeByte) {
-    switch (opcodeByte) {
-        case 0x01: {
-            type = ReferenceTy;
-            value = NULL_VAL;
-            break;
-        }
-        case 0x02: {
-            type = IntTy;
-            value = M1;
-            break;
-        }
-        case 0x03: {
-            type = IntTy;
-            value = ZERO;
-            break;
-        }
-        case 0x04: {
-            type = IntTy;
-            value = ONE;
-            break;
-        }
-        case 0x05: {
-            type = IntTy;
-            value = TWO;
-            break;
-        }
-        case 0x06: {
-            type = IntTy;
-            value = THREE;
-            break;
-        }
-        case 0x07: {
-            type = IntTy;
-            value = FOUR;
-            break;
-        }
-        case 0x08: {
-            type = IntTy;
-            value = FIVE;
-            break;
-        }
-        default:
-            throw std::invalid_argument("Invalid const instruction opcode: " + std::to_string(opcodeByte));
-    }
-}
-
-LoadInst::LoadInst(std::uint16_t opcodeByte) : Instruction(opcodeByte) {
-    switch (opcodeByte) {
-        case 0x2A: {
-            type = ReferenceTy;
-            value = ZERO;
-            break;
-        }
-        default:
-            throw std::invalid_argument("Invalid load instruction opcode: " + std::to_string(opcodeByte));
-    }
-}
-
-StoreInst::StoreInst(std::uint16_t opcodeByte) : Instruction(opcodeByte) {
-    switch (opcodeByte) {
-        case 0x3C: {
-            type = IntTy;
-            break;
-        }
-        default:
-            throw std::invalid_argument("Invalid store instruction opcode: " + std::to_string(opcodeByte));
-    }
-}
-
-BiPushInst::BiPushInst(std::uint8_t opcodeByte, std::uint8_t operand) : Instruction(opcodeByte, operand) {
-    type = ByteTy;
-}
-
-SiPushInst::SiPushInst(std::uint8_t opcodeByte, std::uint8_t operand1, std::uint8_t operand2) : Instruction(opcodeByte, operand1, operand2) {
-    type = ShortTy;
-}
-
-ReturnInst::ReturnInst(std::uint16_t opcodeByte) : Instruction(opcodeByte) {
-    switch (opcodeByte) {
-        case 0xAC: {
-            type = IntTy;
-            break;
-        }
-        case 0xAD: {
-            type = LongTy;
-            break;
-        }
-        case 0xAE: {
-            type = FloatTy;
-            break;
-        }
-        case 0xAF: {
-            type = DoubleTy;
-            break;
-        }
-        case 0xB0: {
-            type = ReferenceTy;
-            break;
-        }
-        case 0xB1: {
-            break;
-        }
-        default:
-            throw std::invalid_argument("Invalid return instruction opcode: " + std::to_string(opcodeByte));
-    }
-}
-
-IndexInstruction::IndexInstruction(std::uint8_t opcodeByte, std::uint8_t indexByte1, std::uint8_t indexByte2) : Instruction(opcodeByte, indexByte1, indexByte2) {
-    index = (indexByte1 << 8) | indexByte2;
 }
