@@ -251,78 +251,8 @@ std::array<Instruction::Opcode, 256> Instruction::opcodeLookup = {
     Instruction::Opcode::IMPDEP2
 };
 
-std::map<std::uint8_t, int> Instruction::opcodeArgCountMap = {
-        // Four bytes
-        {0xB9, 4},
-        {0xBA, 4},
-        {0xC8, 4},
-        {0xC9, 4},
-
-        // Three bytes
-        {0xC5, 3},
-
-        // Two bytes
-        {0x11, 2},
-        {0x13, 2},
-        {0x14, 2},
-        {0x84, 2},
-        {0x99, 2},
-        {0x9A, 2},
-        {0x9B, 2},
-        {0x9C, 2},
-        {0x9D, 2},
-        {0x9E, 2},
-        {0x9F, 2},
-        {0xA0, 2},
-        {0xA1, 2},
-        {0xA2, 2},
-        {0xA3, 2},
-        {0xA4, 2},
-        {0xA5, 2},
-        {0xA6, 2},
-        {0xA7, 2},
-        {0xB2, 2},
-        {0xB3, 2},
-        {0xB4, 2},
-        {0xB5, 2},
-        {0xB6, 2},
-        {0xB7, 2},
-        {0xB8, 2},
-        {0xBB, 2},
-        {0xBD, 2},
-        {0xC0, 2},
-        {0xC1, 2},
-        {0xC6, 2},
-        {0xC7, 2},
-
-        // One byte
-        {0x10, 1},
-        {0x12, 1},
-        {0x13, 1},
-        {0x14, 1},
-        {0x15, 1},
-        {0x16, 1},
-        {0x17, 1},
-        {0x18, 1},
-        {0x19, 1},
-        {0x36, 1},
-        {0x37, 1},
-        {0x38, 1},
-        {0x39, 1},
-        {0x3A, 1},
-        {0xBC, 1},
-};
-
 Instruction::Opcode Instruction::getOpcodeFromOpcodeByte(std::uint8_t opcodeByte) {
     return opcodeLookup[opcodeByte];
-}
-
-int Instruction::getUniformArgCountFromOpcodeByte(std::uint8_t opcodeByte) {
-    if (opcodeArgCountMap.find(opcodeByte) == opcodeArgCountMap.end()) {
-        return 0;
-    } else {
-        return opcodeArgCountMap[opcodeByte];
-    }
 }
 
 void Instruction::_serialize() {

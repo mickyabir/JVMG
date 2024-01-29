@@ -79,14 +79,154 @@ static std::map<Instruction::Opcode, Instruction> staticInstMap = {
         {Instruction::LSTORE_2, LStore2},
         {Instruction::LSTORE_3, LStore3},
 
+        // fstore_<n>
+        {Instruction::FSTORE_0, FStore0},
+        {Instruction::FSTORE_1, FStore1},
+        {Instruction::FSTORE_2, FStore2},
+        {Instruction::FSTORE_3, FStore3},
 
+        // dstore_<n>
+        {Instruction::DSTORE_0, DStore0},
+        {Instruction::DSTORE_1, DStore1},
+        {Instruction::DSTORE_2, DStore2},
+        {Instruction::DSTORE_3, DStore3},
 
+        // astore_<n>
+        {Instruction::ASTORE_0, AStore0},
+        {Instruction::ASTORE_1, AStore1},
+        {Instruction::ASTORE_2, AStore2},
+        {Instruction::ASTORE_3, AStore3},
 
+        // Tastore_<n>
+        {Instruction::IASTORE, IAStore},
+        {Instruction::LASTORE, LAStore},
+        {Instruction::FASTORE, FAStore},
+        {Instruction::DASTORE, DAStore},
+        {Instruction::AASTORE, AAStore},
+        {Instruction::BASTORE, BAStore},
+        {Instruction::CASTORE, CAStore},
+        {Instruction::SASTORE, SAStore},
+
+        {Instruction::POP, Pop},
+        {Instruction::POP2, Pop2},
+        {Instruction::DUP, Dup},
+        {Instruction::DUP_X1, DupX1},
+        {Instruction::DUP_X2, DupX2},
+        {Instruction::DUP2, Dup2},
+        {Instruction::DUP2, Dup2},
+        {Instruction::DUP2_X1, Dup2X1},
+        {Instruction::DUP2_X2, Dup2X2},
+        {Instruction::SWAP, Swap},
+
+        // Tadd
+        {Instruction::IADD, IAdd},
+        {Instruction::LADD, LAdd},
+        {Instruction::FADD, FAdd},
+        {Instruction::DADD, DAdd},
+
+        // Tsub
+        {Instruction::ISUB, ISub},
+        {Instruction::LSUB, LSub},
+        {Instruction::FSUB, FSub},
+        {Instruction::DSUB, DSub},
+
+        // Tmul
+        {Instruction::IMUL, IMul},
+        {Instruction::LMUL, LMul},
+        {Instruction::FMUL, FMul},
+        {Instruction::DMUL, DMul},
+
+        // Tdiv
+        {Instruction::IDIV, IDiv},
+        {Instruction::LDIV, LDiv},
+        {Instruction::FDIV, FDiv},
+        {Instruction::DDIV, DDiv},
+
+        // Trem
+        {Instruction::IREM, IRem},
+        {Instruction::LREM, LRem},
+        {Instruction::FREM, FRem},
+        {Instruction::DREM, DRem},
+
+        // Tneg
+        {Instruction::INEG, INeg},
+        {Instruction::LNEG, LNeg},
+        {Instruction::FNEG, FNeg},
+        {Instruction::DNEG, DNeg},
+
+        // Tshl
+        {Instruction::ISHL, IShl},
+        {Instruction::LSHL, LShl},
+
+        // Tshr
+        {Instruction::ISHR, IShr},
+        {Instruction::LSHR, LShr},
+
+        // Tushr
+        {Instruction::IUSHR, IUshr},
+        {Instruction::LUSHR, LUshr},
+
+        // Tand
+        {Instruction::IAND, IAnd},
+        {Instruction::LAND, LAnd},
+
+        // Tor
+        {Instruction::IOR, IOr},
+        {Instruction::LOR, LOr},
+
+        // Txor
+        {Instruction::IXOR, IXor},
+        {Instruction::LXOR, LXor},
+
+        // Conversion
+        {Instruction::I2L, I2l},
+        {Instruction::I2F, I2f},
+        {Instruction::I2D, I2d},
+        {Instruction::L2I, L2i},
+        {Instruction::L2F, L2f},
+        {Instruction::L2D, L2d},
+        {Instruction::F2I, F2i},
+        {Instruction::F2L, F2l},
+        {Instruction::F2D, F2d},
+        {Instruction::D2I, D2i},
+        {Instruction::D2L, D2l},
+        {Instruction::D2F, D2f},
+        {Instruction::I2B, I2b},
+        {Instruction::I2C, I2c},
+        {Instruction::I2S, I2s},
+
+        // Compare
+        {Instruction::LCMP, LCmp},
+        {Instruction::FCMPL, FCmpL},
+        {Instruction::FCMPG, FCmpG},
+        {Instruction::DCMPL, DCmpL},
+        {Instruction::DCMPG, DCmpG},
+
+        // Treturn
         {Instruction::IRETURN, IReturn},
+        {Instruction::LRETURN, LReturn},
+        {Instruction::FRETURN, FReturn},
+        {Instruction::DRETURN, DReturn},
+        {Instruction::ARETURN, AReturn},
 
         {Instruction::RETURN, Return},
 
+        {Instruction::MONITORENTER, MonitorEnter},
+        {Instruction::MONITOREXIT, MonitorExit},
+
+        {Instruction::BREAKPOINT, Breakpoint},
+
+        {Instruction::IMPDEP1, ImpDep1},
+        {Instruction::IMPDEP2, ImpDep2},
 };
+
+std::uint16_t combineTwoBytesReverse(std::uint8_t byte1, std::uint8_t byte2) {
+    return (byte1 << 8) | byte2;
+}
+
+std::uint16_t combineFourBytesReverse(std::uint8_t byte1, std::uint8_t byte2, std::uint8_t byte3, std::uint8_t byte4) {
+    return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+}
 
 Instruction Parser::consumeInstruction() {
     std::uint8_t opcodeByte = consumeOneByte();
@@ -104,7 +244,8 @@ Instruction Parser::consumeInstruction() {
         case Instruction::SIPUSH: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return SiPush(operand1, operand2);
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return SiPush(operand);
         }
         case Instruction::LDC: {
             auto operand = consumeOneByte();
@@ -113,12 +254,14 @@ Instruction Parser::consumeInstruction() {
         case Instruction::LDC_W: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return LdcW(operand1, operand2);
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return LdcW(operand);
         }
         case Instruction::LDC2_W: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return Ldc2W(operand1, operand2);
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return Ldc2W(operand);
         }
         case Instruction::ILOAD: {
             auto operand = consumeOneByte();
@@ -160,26 +303,244 @@ Instruction Parser::consumeInstruction() {
             auto operand = consumeOneByte();
             return AStore(operand);
         }
-
+        case Instruction::IINC: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return Iinc(operand);
+        }
+        case Instruction::IFEQ: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return IfEq(operand);
+        }
+        case Instruction::IFNE: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return IfNe(operand);
+        }
+        case Instruction::IFLT: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return IfLt(operand);
+        }
+        case Instruction::IFGE: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return IfGe(operand);
+        }
+        case Instruction::IFGT: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return IfGt(operand);
+        }
+        case Instruction::IFLE: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return IfLe(operand);
+        }
+        case Instruction::IF_ICMPEQ: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return IfICmpEq(operand);
+        }
+        case Instruction::IF_ICMPNE: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return IfICmpNe(operand);
+        }
+        case Instruction::IF_ICMPLT: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return IfICmpLt(operand);
+        }
+        case Instruction::IF_ICMPGE: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return IfICmpGe(operand);
+        }
+        case Instruction::IF_ICMPGT: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return IfICmpGt(operand);
+        }
+        case Instruction::IF_ICMPLE: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return IfICmpLe(operand);
+        }
+        case Instruction::IF_ACMPEQ: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return IfACmpEq(operand);
+        }
+        case Instruction::IF_ACMPNE: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return IfACmpNe(operand);
+        }
+        case Instruction::GOTO: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return Goto(operand);
+        }
+        case Instruction::JSR: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return Jsr(operand);
+        }
+        case Instruction::RET: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return Ret(operand);
+        }
+        case Instruction::GETSTATIC: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return GetStatic(operand);
+        }
+        case Instruction::PUTSTATIC: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return PutStatic(operand);
+        }
         case Instruction::GETFIELD: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return GetField(operand1, operand2);
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return GetField(operand);
         }
         case Instruction::PUTFIELD: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return PutField(operand1, operand2);
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return PutField(operand);
         }
-
+        case Instruction::INVOKEVIRTUAL: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return InvokeVirtual(operand);
+        }
         case Instruction::INVOKESPECIAL: {
             auto operand1 = consumeOneByte();
             auto operand2 = consumeOneByte();
-            return InvokeSpecial(operand1, operand2);
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return InvokeSpecial(operand);
         }
-
-
-
+        case Instruction::INVOKESTATIC: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return InvokeStatic(operand);
+        }
+        case Instruction::INVOKEINTERFACE: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand3 = consumeOneByte();
+            auto operand4 = consumeOneByte();
+            auto operand = combineFourBytesReverse(operand1, operand2, operand3, operand4);
+            return InvokeInterface(operand);
+        }
+        case Instruction::INVOKEDYNAMIC: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand3 = consumeOneByte();
+            auto operand4 = consumeOneByte();
+            auto operand = combineFourBytesReverse(operand1, operand2, operand3, operand4);
+            return InvokeDynamic(operand);
+        }
+        case Instruction::NEW: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return New(operand);
+        }
+        case Instruction::NEWARRAY: {
+            auto operand = consumeOneByte();
+            return NewArray(operand);
+        }
+        case Instruction::ANEWARRAY: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return ANewArray(operand);
+        }
+        case Instruction::CHECKCAST: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return CheckCast(operand);
+        }
+        case Instruction::INSTANCEOF: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand = combineTwoBytesReverse(operand1, operand2);
+            return InstanceOf(operand);
+        }
+        case Instruction::WIDE: {
+            auto executedOpcode = consumeOneByte();
+            if (executedOpcode == 0x84) {
+                auto indexByte1 = consumeOneByte();
+                auto indexByte2 = consumeOneByte();
+                auto countByte1 = consumeOneByte();
+                auto countByte2 = consumeOneByte();
+                return Wide(indexByte1, indexByte2, countByte1, countByte2);
+            } else {
+                auto indexByte1 = consumeOneByte();
+                auto indexByte2 = consumeOneByte();
+                return Wide(opcode, indexByte1, indexByte2);
+            }
+        }
+        case Instruction::MULTIANEWARRAY: {
+            auto indexByte1 = consumeOneByte();
+            auto indexByte2 = consumeOneByte();
+            auto dimensions = consumeOneByte();
+            return MultiANewArray(indexByte1, indexByte2, dimensions);
+        }
+        case Instruction::IFNULL: {
+            auto operand = consumeOneByte();
+            return IfNull(operand);
+        }
+        case Instruction::IFNONNULL: {
+            auto operand = consumeOneByte();
+            return IfNonNull(operand);
+        }
+        case Instruction::GOTO_W: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand3 = consumeOneByte();
+            auto operand4 = consumeOneByte();
+            auto operand = combineFourBytesReverse(operand1, operand2, operand3, operand4);
+            return GotoW(operand);
+        }
+        case Instruction::JSR_W: {
+            auto operand1 = consumeOneByte();
+            auto operand2 = consumeOneByte();
+            auto operand3 = consumeOneByte();
+            auto operand4 = consumeOneByte();
+            auto operand = combineFourBytesReverse(operand1, operand2, operand3, operand4);
+            return JsrW(operand);
+        }
         case Instruction::INVALID_INSTRUCTION_OPCODE:
         default:
             throw std::invalid_argument("Opcode not implemented: " + std::to_string(opcodeByte));
