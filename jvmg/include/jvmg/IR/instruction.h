@@ -639,10 +639,60 @@ namespace jvmg {
     };
 
     struct Ret : InstructionShortOperand {
-        explicit Ret(std::uint16_t operand) : InstructionShortOperand(0xA9, operand) {}
+        explicit Ret(std::uint8_t operand) : InstructionShortOperand(0xA9, operand) {}
     };
 
     // TODO: Tableswitch and Lookupswitch
+
+    class Tableswitch : public Instruction {
+    public:
+        Tableswitch(std::uint8_t numPadding, std::uint32_t defaultValue, std::uint32_t lowValue, std::uint32_t highValue, std::vector<std::int32_t> indices)
+            : Instruction(0xAA),
+            numPadding(numPadding),
+            defaultValue(defaultValue),
+            lowValue(lowValue),
+            highValue(highValue),
+            indices(std::move(indices)) {
+
+            for (int i = 0; i < numPadding; i++) {
+                operands.push_back(0x0);
+            }
+
+            operands.push_back((defaultValue & 0xFF000000) >> 24);
+            operands.push_back((defaultValue & 0xFF0000) >> 16);
+            operands.push_back((defaultValue & 0xFF00) >> 8);
+            operands.push_back(defaultValue & 0xFF);
+
+            operands.push_back((lowValue & 0xFF000000) >> 24);
+            operands.push_back((lowValue & 0xFF0000) >> 16);
+            operands.push_back((lowValue & 0xFF00) >> 8);
+            operands.push_back(lowValue & 0xFF);
+
+            operands.push_back((highValue & 0xFF000000) >> 24);
+            operands.push_back((highValue & 0xFF0000) >> 16);
+            operands.push_back((highValue & 0xFF00) >> 8);
+            operands.push_back(highValue & 0xFF);
+
+            for (int i = 0; i < indices.size(); i++) {
+                auto index = indices[i];
+                operands.push_back((index & 0xFF000000) >> 24);
+                operands.push_back((index & 0xFF0000) >> 16);
+                operands.push_back((index & 0xFF00) >> 8);
+                operands.push_back(index & 0xFF);
+            }
+        }
+
+    private:
+        std::uint8_t numPadding;
+        std::uint32_t defaultValue;
+        std::uint32_t lowValue;
+        std::uint32_t highValue;
+        std::vector<std::int32_t> indices;
+    };
+
+    class Lookupswitch : Instruction {
+
+    };
 
     // Treturn
     static const Instruction IReturn(0xAC, Instruction::IntTy);

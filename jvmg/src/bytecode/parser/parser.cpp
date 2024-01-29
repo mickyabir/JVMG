@@ -77,10 +77,10 @@ ClassFile Parser::consumeClassFile() {
 }
 
 void Parser::consumeMagic() {
-    assert(reader->readByte() == 0xCA);
-    assert(reader->readByte() == 0xFE);
-    assert(reader->readByte() == 0xBA);
-    assert(reader->readByte() == 0xBE);
+    assert(consumeOneByte() == 0xCA);
+    assert(consumeOneByte() == 0xFE);
+    assert(consumeOneByte() == 0xBA);
+    assert(consumeOneByte() == 0xBE);
 }
 
 CPInfo Parser::consumeConstantPoolInfo() {
@@ -89,13 +89,22 @@ CPInfo Parser::consumeConstantPoolInfo() {
 
     switch(tag) {
         case CPInfo::ConstantType::CONSTANT_Class:
+        case CPInfo::ConstantType::CONSTANT_String:
+        case CPInfo::ConstantType::CONSTANT_MethodType:
             info.push_back(consumeOneByte());
             info.push_back(consumeOneByte());
             break;
+        case CPInfo::ConstantType::CONSTANT_MethodHandle:
+            info.push_back(consumeOneByte());
+            info.push_back(consumeOneByte());
+            info.push_back(consumeOneByte());
         case CPInfo::ConstantType::CONSTANT_Fieldref:
         case CPInfo::ConstantType::CONSTANT_Methodref:
         case CPInfo::ConstantType::CONSTANT_InterfaceMethodref:
         case CPInfo::ConstantType::CONSTANT_NameAndType:
+        case CPInfo::ConstantType::CONSTANT_Integer:
+        case CPInfo::ConstantType::CONSTANT_Float:
+        case CPInfo::ConstantType::CONSTANT_InvokeDynamic:
             info.push_back(consumeOneByte());
             info.push_back(consumeOneByte());
             info.push_back(consumeOneByte());
@@ -113,6 +122,16 @@ CPInfo Parser::consumeConstantPoolInfo() {
             }
             break;
         }
+        case CPInfo::ConstantType::CONSTANT_Long:
+        case CPInfo::ConstantType::CONSTANT_Double:
+            info.push_back(consumeOneByte());
+            info.push_back(consumeOneByte());
+            info.push_back(consumeOneByte());
+            info.push_back(consumeOneByte());
+            info.push_back(consumeOneByte());
+            info.push_back(consumeOneByte());
+            info.push_back(consumeOneByte());
+            info.push_back(consumeOneByte());
         default:
             throw std::invalid_argument("Constant pool info tag invalid.");
     }
@@ -140,6 +159,7 @@ AttributeInfo *Parser::consumeAttributesInfo() {
 
             // Code length is in bytes, and instructions are variable-length
             // Keep track of bytes consumed
+            context->setCodeStartOffset(context->getByteOffset());
             for (int i = 0; i < codeLength;) {
                 code.push_back((consumeInstruction()));
                 i += code.back().getSizeInBytes();
@@ -217,19 +237,26 @@ ClassFile::MethodInfo Parser::consumeMethodInfo() {
 }
 
 std::uint8_t Parser::consumeOneByte() {
+    context->incrementByteOffset();
     return reader->readByte();
 }
 
 std::uint16_t Parser::consumeTwoBytes() {
     std::uint8_t hbyte = reader->readByte();
+    context->incrementByteOffset();
     std::uint8_t lbyte = reader->readByte();
+    context->incrementByteOffset();
     return (hbyte << 8) | lbyte;
 }
 
 std::uint32_t Parser::consumeFourBytes() {
     std::uint8_t hhbyte = reader->readByte();
+    context->incrementByteOffset();
     std::uint8_t hlbyte = reader->readByte();
+    context->incrementByteOffset();
     std::uint8_t lhbyte = reader->readByte();
+    context->incrementByteOffset();
     std::uint8_t llbyte = reader->readByte();
+    context->incrementByteOffset();
     return (hhbyte << 24) | (hlbyte << 16) | ( lhbyte << 8) | llbyte;
 }

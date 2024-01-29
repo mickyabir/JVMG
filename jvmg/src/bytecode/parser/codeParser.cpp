@@ -406,10 +406,39 @@ Instruction Parser::consumeInstruction() {
             return Jsr(operand);
         }
         case Instruction::RET: {
-            auto operand1 = consumeOneByte();
-            auto operand2 = consumeOneByte();
-            auto operand = combineTwoBytesReverse(operand1, operand2);
+            auto operand = consumeOneByte();
             return Ret(operand);
+        }
+        case Instruction::TABLESWITCH: {
+            // Consume padding
+            std::uint8_t numPadding = 0;
+            while ((context->getByteOffset() - context->getCodeStartOffset()) % 4 != 0) {
+                consumeOneByte();
+                numPadding++;
+            }
+            auto defaultByte1 = consumeOneByte();
+            auto defaultByte2 = consumeOneByte();
+            auto defaultByte3 = consumeOneByte();
+            auto defaultByte4 = consumeOneByte();
+            auto lowByte1 = consumeOneByte();
+            auto lowByte2 = consumeOneByte();
+            auto lowByte3 = consumeOneByte();
+            auto lowByte4 = consumeOneByte();
+            auto highByte1 = consumeOneByte();
+            auto highByte2 = consumeOneByte();
+            auto highByte3 = consumeOneByte();
+            auto highByte4 = consumeOneByte();
+
+            auto defaultValue = (defaultByte1 << 24) | (defaultByte2 << 16) | (defaultByte3) | defaultByte4;
+            auto lowValue = (lowByte1 << 24) | (lowByte2 << 16) | (lowByte3) | lowByte4;
+            auto highValue = (highByte1 << 24) | (highByte2 << 16) | (highByte3) | highByte4;
+
+            std::vector<std::int32_t> indices;
+            for (int i = 0; i < (highValue - lowValue + 1); i++) {
+                indices.push_back((std::int32_t)consumeFourBytes());
+            }
+
+            return Tableswitch(numPadding, defaultValue, lowValue, highValue, indices);
         }
         case Instruction::GETSTATIC: {
             auto operand1 = consumeOneByte();

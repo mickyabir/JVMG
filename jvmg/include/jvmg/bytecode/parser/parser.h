@@ -14,10 +14,20 @@
 namespace jvmg {
     class ParserContext {
     public:
+        ParserContext() : byteOffset(0), codeStartOffset(0) {}
+
+        void incrementByteOffset() { byteOffset += 1; }
+        long long getByteOffset() { return byteOffset; }
+
+        void setCodeStartOffset(long long offset) { codeStartOffset = offset; }
+        long long getCodeStartOffset() { return codeStartOffset; }
+
         void addConstantToPool(const ClassFile::CPInfo& constant) { constantPool.push_back(constant); }
         std::string getConstantUTF8(int idx);
     private:
         std::vector<ClassFile::CPInfo> constantPool;
+        long long byteOffset;
+        long long codeStartOffset;
     };
 
     class Parser {
