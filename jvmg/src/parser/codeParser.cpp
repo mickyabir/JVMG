@@ -213,6 +213,9 @@ static std::map<Instruction::Opcode, Instruction> staticInstMap = {
 
         {Instruction::RETURN, Return},
 
+        {Instruction::ARRAYLENGTH, ArrayLength},
+        {Instruction::ATHROW, AThrow},
+
         {Instruction::MONITORENTER, MonitorEnter},
         {Instruction::MONITOREXIT, MonitorExit},
 

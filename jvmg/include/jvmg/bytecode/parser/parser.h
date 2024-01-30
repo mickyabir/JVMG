@@ -18,10 +18,10 @@ namespace jvmg {
         ParserContext() : byteOffset(0), codeStartOffset(0) {}
 
         void incrementByteOffset() { byteOffset += 1; }
-        long long getByteOffset() { return byteOffset; }
+        [[nodiscard]] long long getByteOffset() const { return byteOffset; }
 
         void setCodeStartOffset(long long offset) { codeStartOffset = offset; }
-        long long getCodeStartOffset() { return codeStartOffset; }
+        [[nodiscard]] long long getCodeStartOffset() const { return codeStartOffset; }
 
         void addConstantToPool(const CPInfo& constant) { constantPool.push_back(constant); }
         std::string getConstantUTF8(int idx);

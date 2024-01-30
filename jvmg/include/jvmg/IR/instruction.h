@@ -252,13 +252,13 @@ namespace jvmg {
             FIVE
         };
 
-        Instruction() {}
+        Instruction() : opcodeByte(0x0), type(NoTy) {}
         explicit Instruction(std::uint8_t opcodeByte) : opcodeByte(opcodeByte), type(NoTy) {}
         Instruction(std::uint8_t opcodeByte, Type type) : opcodeByte(opcodeByte), type(type) {}
         Instruction(std::uint8_t opcodeByte, Type type, std::optional<ImplicitValue> value)
                 : opcodeByte(opcodeByte), type(type), value(value) {}
         Instruction(std::uint8_t opcodeByte, std::vector<std::uint8_t> operands)
-                : opcodeByte(opcodeByte), operands(std::move(operands)) {}
+                : opcodeByte(opcodeByte), operands(std::move(operands)) , type(NoTy) {}
         Instruction(std::uint8_t opcodeByte, std::vector<std::uint8_t> operands, Type type)
                 : opcodeByte(opcodeByte), operands(std::move(operands)), type(type) {}
         Instruction(std::uint8_t opcodeByte, std::vector<std::uint8_t> operands, Type type, std::optional<ImplicitValue> value)
@@ -266,7 +266,7 @@ namespace jvmg {
 
         static Opcode getOpcodeFromOpcodeByte(std::uint8_t opcodeByte);
 
-        int getSizeInBytes() { return 1 + operands.size(); }
+        size_t getSizeInBytes() { return 1 + operands.size(); }
 
         [[nodiscard]] std::uint8_t getOpcodeByte() const { return opcodeByte; }
         [[nodiscard]] Type getType() const { return type; }
@@ -303,10 +303,6 @@ namespace jvmg {
             operands.push_back((operand & 0xFF0000) >> 16);
             operands.push_back((operand & 0xFF00) >> 8);
             operands.push_back(operand & 0xFF);
-        }
-
-        InstructionIntOperand(std::uint8_t opcodeByte, std::uint16_t operand, Type type) : InstructionIntOperand(opcodeByte, operand) {
-            type = type;
         }
     };
 

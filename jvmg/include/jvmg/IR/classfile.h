@@ -121,7 +121,6 @@ namespace jvmg {
             attributes.clear();
         }
 
-        [[nodiscard]] std::uint32_t getMagic() const { return magic; }
         [[nodiscard]] std::uint16_t getMinorVersion() const { return minorVersion; }
         [[nodiscard]] std::uint16_t getMajorVersion() const { return majorVersion; }
         [[nodiscard]] std::uint16_t getConstantPoolCount() const { return constantPoolCount; }
@@ -138,10 +137,10 @@ namespace jvmg {
         [[nodiscard]] std::uint16_t getAttributesCount() const { return attributesCount; }
         [[nodiscard]] const std::vector<AttributeInfo*>& getAttributes() const { return attributes; }
 
+        const std::uint32_t magic = CLASS_MAGIC;
     private:
         void _serialize() override;
 
-        const std::uint32_t magic = CLASS_MAGIC;
         std::uint16_t minorVersion;
         std::uint16_t majorVersion;
         std::uint16_t constantPoolCount;
