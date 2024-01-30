@@ -62,8 +62,6 @@ ClassFile Parser::consumeClassFile() {
         methods.push_back(methodInfo);
     }
 
-    auto test = methods[0];
-
     std::uint16_t attributesCount = consumeTwoBytes();
     std::vector<AttributeInfo*> attributes;
     AttributeInfo *attributesInfo;
@@ -163,7 +161,7 @@ CPInfo Parser::consumeConstantPoolInfo() {
 AttributeInfo *Parser::consumeAttributesInfo() {
     std::uint16_t attributeNameIndex = consumeTwoBytes();
     std::uint32_t attributeLength = consumeFourBytes();
-    Info *info = nullptr;
+    Attribute *info = nullptr;
     std::string attributeName = context->getConstantUTF8(attributeNameIndex);
     AttributeInfo::AttributeNameTag attributeNameTag = AttributeInfo::getAttributeNameTag(attributeName);
 
@@ -187,7 +185,7 @@ AttributeInfo *Parser::consumeAttributesInfo() {
             }
 
             std::uint16_t exceptionTableLength = consumeTwoBytes();
-            std::vector<CodeInfo::ExceptionTableEntry> exceptionTable;
+            std::vector<CodeAttribute::ExceptionTableEntry> exceptionTable;
             for (int i = 0; i < exceptionTableLength; i++) {
                 std::uint16_t startPC = consumeTwoBytes();
                 std::uint16_t endPC = consumeTwoBytes();
@@ -197,27 +195,27 @@ AttributeInfo *Parser::consumeAttributesInfo() {
             }
 
             std::uint16_t attributesCount = consumeTwoBytes();
-            std::vector<AttributeInfo *> attributes;
+            std::vector<AttributeInfo*> attributes;
             for (int i = 0; i < attributesCount; i++) {
                 attributes.push_back(consumeAttributesInfo());
             }
-            info = new CodeInfo(maxStack, maxLocals, codeLength, code, exceptionTableLength, exceptionTable, attributesCount, attributes);
+            info = new CodeAttribute(maxStack, maxLocals, codeLength, code, exceptionTableLength, exceptionTable, attributesCount, attributes);
             break;
         }
         case AttributeInfo::LINE_NUMBER_TABLE: {
             std::uint16_t lineNumberTableLength = consumeTwoBytes();
-            std::vector<LineNumberInfo::LineNumberTableEntry> lineNumberTable;
+            std::vector<LineNumberAttribute::LineNumberTableEntry> lineNumberTable;
             for (int i = 0; i < lineNumberTableLength; i++) {
                 std::uint16_t startPC = consumeTwoBytes();
                 std::uint16_t lineNumber = consumeTwoBytes();
                 lineNumberTable.push_back({startPC, lineNumber});
             }
-            info = new LineNumberInfo(lineNumberTableLength, lineNumberTable);
+            info = new LineNumberAttribute(lineNumberTableLength, lineNumberTable);
             break;
         }
         case AttributeInfo::SOURCE_FILE: {
             std::uint16_t sourceFileIndex = consumeTwoBytes();
-            info = new SourceFileInfo(sourceFileIndex, attributeName);
+            info = new SourceFileAttribute(sourceFileIndex, attributeName);
             break;
         }
         default:

@@ -29,7 +29,7 @@ std::map<std::string, AttributeInfo::AttributeNameTag> AttributeInfo::attributeN
 };
 
 
-void CodeInfo::_serialize() {
+void CodeAttribute::_serialize() {
     serializeBytes(maxStack);
     serializeBytes(maxLocals);
     serializeBytes(codeLength);

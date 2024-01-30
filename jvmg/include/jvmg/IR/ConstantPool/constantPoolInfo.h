@@ -157,6 +157,14 @@ namespace jvmg {
             info.push_back(length & 0xFF);
             info.insert(info.end(), bytes.begin(), bytes.end());
         }
+        explicit ConstUTF8Info(const std::string& str) : CPInfo(CONSTANT_Utf8) {
+            auto length = str.length();
+            info.push_back((length & 0xFF00) >> 8);
+            info.push_back(length & 0xFF);
+            for (auto c : str) {
+                info.push_back(c);
+            }
+        }
         std::uint16_t getLength();
         std::uint8_t getByte(int idx);
     };

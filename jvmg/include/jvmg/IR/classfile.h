@@ -114,7 +114,6 @@ namespace jvmg {
                                                             methods(std::move(methods)), attributesCount(attributesCount),
                                                             attributes(std::move(attributes)) {}
 
-
         [[nodiscard]] std::uint32_t getMagic() const { return magic; }
         [[nodiscard]] std::uint16_t getMinorVersion() const { return minorVersion; }
         [[nodiscard]] std::uint16_t getMajorVersion() const { return majorVersion; }
