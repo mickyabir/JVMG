@@ -271,6 +271,7 @@ namespace jvmg {
         [[nodiscard]] std::uint8_t getOpcodeByte() const { return opcodeByte; }
         [[nodiscard]] Type getType() const { return type; }
         [[nodiscard]] std::optional<ImplicitValue> getImplicitValue() const { return value; }
+        [[nodiscard]] std::vector<std::uint8_t> getOperands() const { return operands; }
     private:
         void _serialize() override;
 

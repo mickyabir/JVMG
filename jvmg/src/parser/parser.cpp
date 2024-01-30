@@ -3,10 +3,10 @@
 
 using namespace jvmg;
 
-std::string ParserContext::getConstantUTF8(int idx) {
+std::string ParserContext::getConstantUTF8(int idx) const {
     // Constant pool indices start at 1, so subtract 1
     int constantIdx = idx - 1;
-    assert(constantIdx < constantPool.size() - 1);
+    assert(constantIdx <= constantPool.size() - 1);
 
     auto cpInfo = constantPool.at(constantIdx);
     assert(cpInfo.tag == CPInfo::CONSTANT_Utf8);
@@ -19,6 +19,10 @@ std::string ParserContext::getConstantUTF8(int idx) {
     }
 
     return s.str();
+}
+
+CPInfo ParserContext::getConstant(int idx) const {
+    return constantPool.at(idx - 1);
 }
 
 ClassFile Parser::consumeClassFile() {
@@ -179,7 +183,7 @@ AttributeInfo *Parser::consumeAttributesInfo() {
             // Code length is in bytes, and instructions are variable-length
             // Keep track of bytes consumed
             context->setCodeStartOffset(context->getByteOffset());
-            for (int i = 0; i < codeLength;) {
+            for (size_t i = 0; i < codeLength;) {
                 code.push_back((consumeInstruction()));
                 i += code.back().getSizeInBytes();
             }

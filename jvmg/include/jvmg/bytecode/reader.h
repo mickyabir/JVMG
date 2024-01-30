@@ -16,8 +16,7 @@
 namespace jvmg {
     class Reader {
     public:
-        explicit Reader(const char *filename) {
-            this->filename = filename;
+        explicit Reader(const std::string& filename) : filename(filename) {
             srcFile = std::ifstream(filename, std::ios_base::binary);
         }
 
@@ -28,7 +27,7 @@ namespace jvmg {
         }
 
     private:
-        const char *filename;
+        const std::string filename;
         std::ifstream srcFile;
     };
 }

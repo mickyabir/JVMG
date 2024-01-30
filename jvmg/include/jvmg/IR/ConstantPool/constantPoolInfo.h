@@ -13,6 +13,7 @@
 
 namespace jvmg {
     struct ConstUTF8Info;
+    struct ConstClassInfo;
 
     struct CPInfo : Serializable {
         enum ConstantType : std::uint8_t {
@@ -36,6 +37,7 @@ namespace jvmg {
         CPInfo(ConstantType tag, std::vector<std::uint8_t> info) : tag(tag), info(std::move(info)) {}
 
         ConstUTF8Info *asUTF8Info() { return tag == CONSTANT_Utf8 ? (ConstUTF8Info*)this : nullptr; }
+        ConstClassInfo *asConstClassInfo() { return tag == CONSTANT_Class ? (ConstClassInfo*)this : nullptr; }
 
         ConstantType tag;
         std::vector<std::uint8_t> info;
@@ -49,6 +51,10 @@ namespace jvmg {
         explicit ConstClassInfo(std::uint16_t nameIndex) : CPInfo(CONSTANT_Class) {
             info.push_back((nameIndex & 0xFF00) >> 8);
             info.push_back(nameIndex & 0xFF);
+        }
+
+        std::uint16_t getIndex() {
+            return (info[0] << 8) | info[1];
         }
     };
 

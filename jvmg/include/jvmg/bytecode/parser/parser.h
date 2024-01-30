@@ -24,7 +24,9 @@ namespace jvmg {
         [[nodiscard]] long long getCodeStartOffset() const { return codeStartOffset; }
 
         void addConstantToPool(const CPInfo& constant) { constantPool.push_back(constant); }
-        std::string getConstantUTF8(int idx);
+        [[nodiscard]] std::string getConstantUTF8(int idx) const;
+
+        [[nodiscard]] CPInfo getConstant(int idx) const;
     private:
         std::vector<CPInfo> constantPool;
         long long byteOffset;
@@ -48,6 +50,8 @@ namespace jvmg {
         AttributeInfo *consumeAttributesInfo();
 
         Instruction consumeInstruction();
+
+        [[nodiscard]] ParserContext *getContext() const { return context; }
 
     private:
         std::uint8_t consumeOneByte();

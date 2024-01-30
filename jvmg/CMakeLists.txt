@@ -22,4 +22,5 @@ target_link_libraries(JVMG PUBLIC JVMGLib)
 target_include_directories(JVMG PRIVATE include)
 
 
-add_subdirectory(test)
+add_subdirectory(tests)
+add_subdirectory(examples)

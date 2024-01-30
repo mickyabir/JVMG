@@ -11,7 +11,7 @@ using namespace jvmg;
 class InstructionTestFixture : public ::testing::Test {
 public:
     InstructionTestFixture() {
-        Reader reader("data/classFiles/Switch.class");
+        Reader reader("data/classFiles/Minimum.class");
         Parser parser = Parser(&reader);
         auto classFile = parser.consumeClassFile();
     }
