@@ -1,22 +1,37 @@
 cmake_minimum_required(VERSION 3.27)
-project(.)
+project(JVMG)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(. main.cpp
-        include/jvmg/IR/instruction.h
-        src/IR/instruction.cpp
-        include/jvmg/IR/classfile.h
-        include/jvmg/bytecode/reader.h
-        include/jvmg/bytecode/parser/parser.h
-        src/bytecode/parser/parser.cpp
-        include/jvmg/IR/attribute.h
-        src/IR/attribute.cpp
-        src/bytecode/parser/codeParser.cpp
-        include/jvmg/util/util.h
-        src/util/util.cpp
-        src/IR/classfile.cpp
-        src/IR/ConstantPool/ConstUTF8.cpp
-        src/IR/ConstantPool/constantPoolInfo.cpp)
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
 
-target_include_directories(. PRIVATE "include")
+enable_testing()
+
+add_subdirectory(src)
+
+add_executable(JVMG main.cpp)
+target_link_libraries(JVMG PUBLIC JVMGLib)
+
+target_include_directories(JVMG PRIVATE include)
+
+
+add_executable(tests test/test.cpp
+)
+
+target_include_directories(tests PRIVATE "include")
+
+target_link_libraries(
+        tests
+        GTest::gtest
+        GTest::gtest_main
+)
+
+include(GoogleTest)
+gtest_discover_tests(tests)

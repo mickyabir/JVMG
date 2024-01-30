@@ -9,7 +9,7 @@ int main() {
 
     Parser parser = Parser(&reader);
     auto classFile = parser.consumeClassFile();
-    //classFile.outputToFile("test.class");
+    classFile.outputToFile("test.class");
 
 
     std::uint16_t minorVersion = 0;

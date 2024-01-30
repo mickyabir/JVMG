@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 #include <map>
-#include "instruction.h"
+#include "jvmg/IR/instruction.h"
 #include "jvmg/util/util.h"
 
 namespace jvmg {
