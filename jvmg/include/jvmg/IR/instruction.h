@@ -268,12 +268,12 @@ namespace jvmg {
 
         int getSizeInBytes() { return 1 + operands.size(); }
 
-        static std::array<Instruction::Opcode, 256> opcodeLookup;
+        [[nodiscard]] std::uint8_t getOpcodeByte() const { return opcodeByte; }
+        [[nodiscard]] Type getType() const { return type; }
+        [[nodiscard]] std::optional<ImplicitValue> getImplicitValue() const { return value; }
     private:
         void _serialize() override;
 
-        // Only stores non-uniform arg counts
-        static std::map<std::uint8_t, int> opcodeArgCountMap;
         std::uint8_t opcodeByte;
     protected:
         Type type;
@@ -642,8 +642,6 @@ namespace jvmg {
         explicit Ret(std::uint8_t operand) : InstructionShortOperand(0xA9, operand) {}
     };
 
-    // TODO: Tableswitch and Lookupswitch
-
     class Tableswitch : public Instruction {
     public:
         Tableswitch(std::uint8_t numPadding, std::uint32_t defaultValue, std::uint32_t lowValue, std::uint32_t highValue, std::vector<std::int32_t> indices)
@@ -690,8 +688,9 @@ namespace jvmg {
         std::vector<std::int32_t> indices;
     };
 
-    class Lookupswitch : Instruction {
-
+    class Lookupswitch : public Instruction {
+        // TODO: implement
+        virtual ~Lookupswitch() = 0;
     };
 
     // Treturn

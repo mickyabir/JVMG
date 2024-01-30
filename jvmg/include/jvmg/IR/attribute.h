@@ -14,6 +14,7 @@
 
 namespace jvmg {
     struct Attribute : public Serializable {
+        virtual ~Attribute() = default;
     };
 
     struct AttributeInfo : public Serializable {
@@ -47,6 +48,11 @@ namespace jvmg {
                 attributeNameIndex(attributeNameIndex),
                 attributeLength(attributeLength),
                 info(info) {}
+
+        ~AttributeInfo() {
+            delete info;
+            info = nullptr;
+        }
 
         static std::map<std::string, AttributeNameTag> attributeNameTagMap;
 
@@ -117,6 +123,13 @@ namespace jvmg {
         attributesCount(attributesCount),
         attributes(std::move(attributes)) {}
 
+        ~CodeAttribute() override {
+            for (auto attribute : attributes) {
+                delete attribute;
+            }
+            attributes.clear();
+        }
+
         std::uint16_t maxStack;
         std::uint16_t maxLocals;
         std::uint32_t codeLength;
@@ -166,7 +179,7 @@ namespace jvmg {
 
     class SourceFileAttribute : public Attribute {
     public:
-        SourceFileAttribute(std::uint16_t sourceFileIndex, std::string sourceFileName) : sourceFileIndex(sourceFileIndex), sourceFileName(sourceFileName) {}
+        SourceFileAttribute(std::uint16_t sourceFileIndex, std::string sourceFileName) : sourceFileIndex(sourceFileIndex), sourceFileName(std::move(sourceFileName)) {}
 
         std::uint16_t sourceFileIndex;
     private:

@@ -7,10 +7,25 @@
 
 using namespace jvmg;
 
-TEST(ReaderTests, ReadByte) {
-    auto reader = Reader("test.txt");
-    // Expect two strings not to be equal.
-    EXPECT_STRNE("hello", "world");
-    // Expect equality.
-    EXPECT_EQ(7 * 6, 42);
+class InstructionTestFixture : public ::testing::Test {
+public:
+    InstructionTestFixture() {
+    }
+
+    void SetUp() override {
+
+    }
+
+    void TearDown() override {
+
+    }
+
+    ~InstructionTestFixture() override = default;
+};
+
+TEST_F(InstructionTestFixture, AllInstructionsTagTypeValue) {
+    EXPECT_EQ(Nop.getOpcodeFromOpcodeByte(Nop.getOpcodeByte()), Instruction::NOP);
+    EXPECT_EQ(AConstNull.getOpcodeFromOpcodeByte(AConstNull.getOpcodeByte()), Instruction::ACONST_NULL);
+    EXPECT_EQ(AConstNull.getType(), Instruction::ReferenceTy);
+    EXPECT_EQ(AConstNull.getImplicitValue(), Instruction::NULL_VAL);
 }

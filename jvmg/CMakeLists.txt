@@ -22,16 +22,4 @@ target_link_libraries(JVMG PUBLIC JVMGLib)
 target_include_directories(JVMG PRIVATE include)
 
 
-add_executable(tests test/test.cpp
-)
-
-target_include_directories(tests PRIVATE "include")
-
-target_link_libraries(
-        tests
-        GTest::gtest
-        GTest::gtest_main
-)
-
-include(GoogleTest)
-gtest_discover_tests(tests)
+add_subdirectory(test)

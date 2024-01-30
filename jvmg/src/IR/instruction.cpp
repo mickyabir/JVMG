@@ -2,7 +2,7 @@
 
 using namespace jvmg;
 
-std::array<Instruction::Opcode, 256> Instruction::opcodeLookup = {
+std::array<Instruction::Opcode, 256> opcodeLookup = {
     Instruction::Opcode::NOP,
     Instruction::Opcode::ACONST_NULL,
     Instruction::Opcode::ICONST_M1,
