@@ -5,11 +5,11 @@
 using namespace jvmg;
 
 int main() {
-    Reader reader = Reader("Minimum.class");
+    Reader reader = Reader("test/data/classFiles/Minimum.class");
 
     Parser parser = Parser(&reader);
     auto classFile = parser.consumeClassFile();
-    classFile.outputToFile("test.class");
+    classFile.outputToFile("test/data/classFiles/Switch.class");
 
 
     std::uint16_t minorVersion = 0;
@@ -71,7 +71,7 @@ int main() {
     auto attributesCount = 1;
     std::vector<AttributeInfo *> attributes = {&classAttribute};
     auto newClassFile = new ClassFile(minorVersion, majorVersion, constantPoolCount, constantPool, accessFlags, thisClass, superClass, interfaceCount, interfaces, fieldsCount, fields, methodsCount, methods, attributesCount, attributes);
-    newClassFile->outputToFile("Handwritten.class");
+    newClassFile->outputToFile("test/data/classFiles/Handwritten.class");
 
     auto methodDeleted = newClassFile->getMethods()[0];
     delete newClassFile;

@@ -11,5 +11,7 @@ target_link_libraries(
         GTest::gtest_main
 )
 
+file(COPY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 include(GoogleTest)
 gtest_discover_tests(tests)

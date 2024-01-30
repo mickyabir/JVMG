@@ -4,12 +4,16 @@
 #include <gtest/gtest.h>
 
 #include "jvmg/bytecode/reader.h"
+#include "jvmg/bytecode/parser/parser.h"
 
 using namespace jvmg;
 
 class InstructionTestFixture : public ::testing::Test {
 public:
     InstructionTestFixture() {
+        Reader reader("data/classFiles/Switch.class");
+        Parser parser = Parser(&reader);
+        auto classFile = parser.consumeClassFile();
     }
 
     void SetUp() override {
