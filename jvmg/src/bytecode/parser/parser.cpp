@@ -1,8 +1,7 @@
 #include "jvmg/bytecode/parser/parser.h"
+#include "jvmg/IR/ConstantPool/constantPoolInfo.h"
 
 using namespace jvmg;
-
-using CPInfo = ClassFile::CPInfo;
 
 std::string ParserContext::getConstantUTF8(int idx) {
     // Constant pool indices start at 1, so subtract 1
@@ -10,8 +9,8 @@ std::string ParserContext::getConstantUTF8(int idx) {
     assert(constantIdx < constantPool.size() - 1);
 
     auto cpInfo = constantPool.at(constantIdx);
-    assert(cpInfo.tag == ClassFile::CPInfo::CONSTANT_Utf8);
-    ClassFile::ConstUTF8Info *utf8Info = cpInfo.asUTF8Info();
+    assert(cpInfo.tag == CPInfo::CONSTANT_Utf8);
+    ConstUTF8Info *utf8Info = cpInfo.asUTF8Info();
 
     std::stringstream s;
 
@@ -85,58 +84,80 @@ void Parser::consumeMagic() {
 
 CPInfo Parser::consumeConstantPoolInfo() {
     std::uint8_t tag = consumeOneByte();
-    std::vector<std::uint8_t> info;
 
     switch(tag) {
-        case CPInfo::ConstantType::CONSTANT_Class:
-        case CPInfo::ConstantType::CONSTANT_String:
-        case CPInfo::ConstantType::CONSTANT_MethodType:
-            info.push_back(consumeOneByte());
-            info.push_back(consumeOneByte());
-            break;
-        case CPInfo::ConstantType::CONSTANT_MethodHandle:
-            info.push_back(consumeOneByte());
-            info.push_back(consumeOneByte());
-            info.push_back(consumeOneByte());
-        case CPInfo::ConstantType::CONSTANT_Fieldref:
-        case CPInfo::ConstantType::CONSTANT_Methodref:
-        case CPInfo::ConstantType::CONSTANT_InterfaceMethodref:
-        case CPInfo::ConstantType::CONSTANT_NameAndType:
-        case CPInfo::ConstantType::CONSTANT_Integer:
-        case CPInfo::ConstantType::CONSTANT_Float:
-        case CPInfo::ConstantType::CONSTANT_InvokeDynamic:
-            info.push_back(consumeOneByte());
-            info.push_back(consumeOneByte());
-            info.push_back(consumeOneByte());
-            info.push_back(consumeOneByte());
-            break;
+        case CPInfo::ConstantType::CONSTANT_Class: {
+            auto nameIndex = consumeTwoBytes();
+            return ConstClassInfo(nameIndex);
+        }
+        case CPInfo::ConstantType::CONSTANT_String: {
+            auto stringIndex = consumeTwoBytes();
+            return ConstStringInfo(stringIndex);
+        }
+        case CPInfo::ConstantType::CONSTANT_MethodType: {
+            auto descriptorIndex = consumeTwoBytes();
+            return ConstMethodTypeInfo(descriptorIndex);
+        }
+        case CPInfo::ConstantType::CONSTANT_MethodHandle: {
+            auto referenceKind = consumeOneByte();
+            auto referenceIndex = consumeTwoBytes();
+            return ConstMethodHandleInfo(referenceKind, referenceIndex);
+        }
+        case CPInfo::ConstantType::CONSTANT_Fieldref: {
+            auto classIndex = consumeTwoBytes();
+            auto nameAndTypeIndex = consumeTwoBytes();
+            return ConstFieldRefInfo(classIndex, nameAndTypeIndex);
+        }
+        case CPInfo::ConstantType::CONSTANT_Methodref: {
+            auto classIndex = consumeTwoBytes();
+            auto nameAndTypeIndex = consumeTwoBytes();
+            return ConstMethodRefInfo(classIndex, nameAndTypeIndex);
+        }
+        case CPInfo::ConstantType::CONSTANT_InterfaceMethodref: {
+            auto classIndex = consumeTwoBytes();
+            auto nameAndTypeIndex = consumeTwoBytes();
+            return ConstInterfaceMethodRefInfo(classIndex, nameAndTypeIndex);
+        }
+        case CPInfo::ConstantType::CONSTANT_NameAndType: {
+            auto nameIndex = consumeTwoBytes();
+            auto descriptorIndex = consumeTwoBytes();
+            return ConstNameAndType(nameIndex, descriptorIndex);
+        }
+        case CPInfo::ConstantType::CONSTANT_Integer: {
+            auto bytes = consumeFourBytes();
+            return ConstIntegerInfo(bytes);
+        }
+        case CPInfo::ConstantType::CONSTANT_Float: {
+            auto bytes = consumeFourBytes();
+            return ConstFloatInfo(bytes);
+        }
+        case CPInfo::ConstantType::CONSTANT_InvokeDynamic: {
+            auto bootstrapMethodAttrIndex = consumeTwoBytes();
+            auto nameAndTypeIndex = consumeTwoBytes();
+            return ConstInvokeDynamicInfo(bootstrapMethodAttrIndex, nameAndTypeIndex);
+        }
         case CPInfo::ConstantType::CONSTANT_Utf8:
         {
             std::uint16_t length = consumeTwoBytes();
-            std::uint8_t lengthHighBits = (length & 0xFF00) >> 8;
-            std::uint8_t lengthLowBits = (length & 0x00FF);
-            info.push_back(lengthHighBits);
-            info.push_back(lengthLowBits);
+            std::vector<std::uint8_t> bytes;
             for (int i = 0; i < length; i++) {
-                info.push_back(consumeOneByte());
+                bytes.push_back(consumeOneByte());
             }
-            break;
+            return ConstUTF8Info(length, bytes);
         }
-        case CPInfo::ConstantType::CONSTANT_Long:
-        case CPInfo::ConstantType::CONSTANT_Double:
-            info.push_back(consumeOneByte());
-            info.push_back(consumeOneByte());
-            info.push_back(consumeOneByte());
-            info.push_back(consumeOneByte());
-            info.push_back(consumeOneByte());
-            info.push_back(consumeOneByte());
-            info.push_back(consumeOneByte());
-            info.push_back(consumeOneByte());
+        case CPInfo::ConstantType::CONSTANT_Long: {
+            auto highBytes = consumeFourBytes();
+            auto lowBytes = consumeFourBytes();
+            return ConstLongInfo(highBytes, lowBytes);
+        }
+        case CPInfo::ConstantType::CONSTANT_Double: {
+            auto highBytes = consumeFourBytes();
+            auto lowBytes = consumeFourBytes();
+            return ConstDoubleInfo(highBytes, lowBytes);
+        }
         default:
             throw std::invalid_argument("Constant pool info tag invalid.");
     }
-
-    return {(CPInfo::ConstantType) tag, info};
 }
 
 AttributeInfo *Parser::consumeAttributesInfo() {

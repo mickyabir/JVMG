@@ -7,6 +7,7 @@
 
 #include "jvmg/bytecode/reader.h"
 #include "jvmg/IR/instruction.h"
+#include "jvmg/IR/ConstantPool/constantPoolInfo.h"
 
 #include <cassert>
 #include <sstream>
@@ -22,10 +23,10 @@ namespace jvmg {
         void setCodeStartOffset(long long offset) { codeStartOffset = offset; }
         long long getCodeStartOffset() { return codeStartOffset; }
 
-        void addConstantToPool(const ClassFile::CPInfo& constant) { constantPool.push_back(constant); }
+        void addConstantToPool(const CPInfo& constant) { constantPool.push_back(constant); }
         std::string getConstantUTF8(int idx);
     private:
-        std::vector<ClassFile::CPInfo> constantPool;
+        std::vector<CPInfo> constantPool;
         long long byteOffset;
         long long codeStartOffset;
     };
@@ -41,7 +42,7 @@ namespace jvmg {
         ClassFile consumeClassFile();
 
         void consumeMagic();
-        ClassFile::CPInfo consumeConstantPoolInfo();
+        CPInfo consumeConstantPoolInfo();
         ClassFile::FieldInfo consumeFieldInfo();
         ClassFile::MethodInfo consumeMethodInfo();
         AttributeInfo *consumeAttributesInfo();

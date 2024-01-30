@@ -6,21 +6,6 @@
 
 using namespace jvmg;
 
-void ClassFile::CPInfo::_serialize() {
-    serializeBytes(tag);
-    for (auto& byte : info) {
-        serializeBytes(byte);
-    }
-}
-
-std::uint16_t ClassFile::ConstUTF8Info::getLength() {
-    return (info[0] << 8) | info[1];
-}
-
-std::uint8_t ClassFile::ConstUTF8Info::getByte(int idx) {
-    return info[idx + 2];
-}
-
 void ClassFile::FieldInfo::_serialize() {
     serializeBytes(accessFlags);
     serializeBytes(nameIndex);

@@ -13,9 +13,10 @@ add_executable(. main.cpp
         include/jvmg/IR/attribute.h
         src/IR/attribute.cpp
         src/bytecode/parser/codeParser.cpp
-        include/jvmg/codegen/codegen.h
         include/jvmg/util/util.h
         src/util/util.cpp
-        src/IR/classfile.cpp)
+        src/IR/classfile.cpp
+        src/IR/ConstantPool/ConstUTF8.cpp
+        src/IR/ConstantPool/constantPoolInfo.cpp)
 
 target_include_directories(. PRIVATE "include")

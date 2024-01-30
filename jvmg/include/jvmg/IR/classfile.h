@@ -8,6 +8,7 @@
 #define CLASS_MAGIC 0xCAFEBABE
 
 #include "jvmg/IR/attribute.h"
+#include "jvmg/IR/ConstantPool/constantPoolInfo.h"
 
 #include <cstdint>
 #include <utility>
@@ -16,42 +17,6 @@
 namespace jvmg {
     class ClassFile : public Serializable {
     public:
-        struct ConstUTF8Info;
-
-        struct CPInfo : Serializable {
-            enum ConstantType : std::uint8_t {
-                CONSTANT_Class = 7,
-                CONSTANT_Fieldref = 9,
-                CONSTANT_Methodref  = 10,
-                CONSTANT_InterfaceMethodref = 11,
-                CONSTANT_String = 8,
-                CONSTANT_Integer = 3,
-                CONSTANT_Float = 4,
-                CONSTANT_Long = 5,
-                CONSTANT_Double = 6,
-                CONSTANT_NameAndType = 12,
-                CONSTANT_Utf8 = 1,
-                CONSTANT_MethodHandle = 15,
-                CONSTANT_MethodType = 16,
-                CONSTANT_InvokeDynamic = 18,
-            };
-
-            CPInfo(ConstantType tag, std::vector<std::uint8_t> info) : tag(tag), info(std::move(info)) {}
-
-            ConstUTF8Info *asUTF8Info() { return tag == CONSTANT_Utf8 ? (ConstUTF8Info*)this : nullptr; }
-
-            ConstantType tag;
-            std::vector<std::uint8_t> info;
-
-        private:
-            void _serialize() override;
-        };
-
-        struct ConstUTF8Info : CPInfo {
-            std::uint16_t getLength();
-            std::uint8_t getByte(int idx);
-        };
-
         enum ClassAccessFlags : std::uint16_t {
             ACC_PUBLIC = 0x0001,
             ACC_FINAL = 0x0010,

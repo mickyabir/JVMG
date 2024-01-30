@@ -3,6 +3,8 @@
 using namespace jvmg;
 
 static std::map<Instruction::Opcode, Instruction> staticInstMap = {
+        {Instruction::NOP, Nop},
+
         {Instruction::ACONST_NULL, AConstNull},
 
         // iconst_<n>

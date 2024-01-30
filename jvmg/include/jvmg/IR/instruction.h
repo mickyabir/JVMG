@@ -242,14 +242,14 @@ namespace jvmg {
         };
 
         enum ImplicitValue {
-            NULL_VAL,
-            M1 = -1,
-            ZERO = 0,
-            ONE = 1,
-            TWO = 2,
-            THREE = 3,
-            FOUR = 4,
-            FIVE = 5
+            NULL_VAL = 0,
+            M1,
+            ZERO,
+            ONE,
+            TWO,
+            THREE,
+            FOUR,
+            FIVE
         };
 
         Instruction() {}
