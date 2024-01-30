@@ -644,14 +644,8 @@ namespace jvmg {
 
     class Tableswitch : public Instruction {
     public:
-        Tableswitch(std::uint8_t numPadding, std::uint32_t defaultValue, std::uint32_t lowValue, std::uint32_t highValue, std::vector<std::int32_t> indices)
-            : Instruction(0xAA),
-            numPadding(numPadding),
-            defaultValue(defaultValue),
-            lowValue(lowValue),
-            highValue(highValue),
-            indices(std::move(indices)) {
-
+        Tableswitch(std::uint8_t numPadding, std::uint32_t defaultValue, std::uint32_t lowValue, std::uint32_t highValue, const std::vector<std::int32_t>& indices)
+            : Instruction(0xAA) {
             for (int i = 0; i < numPadding; i++) {
                 operands.push_back(0x0);
             }
@@ -671,26 +665,49 @@ namespace jvmg {
             operands.push_back((highValue & 0xFF00) >> 8);
             operands.push_back(highValue & 0xFF);
 
-            for (int i = 0; i < indices.size(); i++) {
-                auto index = indices[i];
+            for (int index : indices) {
                 operands.push_back((index & 0xFF000000) >> 24);
                 operands.push_back((index & 0xFF0000) >> 16);
                 operands.push_back((index & 0xFF00) >> 8);
                 operands.push_back(index & 0xFF);
             }
         }
-
-    private:
-        std::uint8_t numPadding;
-        std::uint32_t defaultValue;
-        std::uint32_t lowValue;
-        std::uint32_t highValue;
-        std::vector<std::int32_t> indices;
     };
 
     class Lookupswitch : public Instruction {
-        // TODO: implement
-        virtual ~Lookupswitch() = 0;
+    public:
+        Lookupswitch(std::uint8_t numPadding, std::uint32_t defaultValue, std::uint32_t nPairs, const std::vector<std::pair<std::int32_t, std::int32_t>>& pairs)
+        : Instruction(0xAB) {
+
+            for (int i = 0; i < numPadding; i++) {
+                operands.push_back(0x0);
+            }
+
+            operands.push_back((defaultValue & 0xFF000000) >> 24);
+            operands.push_back((defaultValue & 0xFF0000) >> 16);
+            operands.push_back((defaultValue & 0xFF00) >> 8);
+            operands.push_back(defaultValue & 0xFF);
+
+            operands.push_back((nPairs & 0xFF000000) >> 24);
+            operands.push_back((nPairs & 0xFF0000) >> 16);
+            operands.push_back((nPairs & 0xFF00) >> 8);
+            operands.push_back(nPairs & 0xFF);
+
+            for (auto pair : pairs) {
+                auto match = pair.first;
+                auto offset = pair.first;
+
+                operands.push_back((match & 0xFF000000) >> 24);
+                operands.push_back((match & 0xFF0000) >> 16);
+                operands.push_back((match & 0xFF00) >> 8);
+                operands.push_back(match & 0xFF);
+
+                operands.push_back((offset & 0xFF000000) >> 24);
+                operands.push_back((offset & 0xFF0000) >> 16);
+                operands.push_back((offset & 0xFF00) >> 8);
+                operands.push_back(offset & 0xFF);
+            }
+        }
     };
 
     // Treturn

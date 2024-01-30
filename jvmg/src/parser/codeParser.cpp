@@ -418,22 +418,9 @@ Instruction Parser::consumeInstruction() {
                 consumeOneByte();
                 numPadding++;
             }
-            auto defaultByte1 = consumeOneByte();
-            auto defaultByte2 = consumeOneByte();
-            auto defaultByte3 = consumeOneByte();
-            auto defaultByte4 = consumeOneByte();
-            auto lowByte1 = consumeOneByte();
-            auto lowByte2 = consumeOneByte();
-            auto lowByte3 = consumeOneByte();
-            auto lowByte4 = consumeOneByte();
-            auto highByte1 = consumeOneByte();
-            auto highByte2 = consumeOneByte();
-            auto highByte3 = consumeOneByte();
-            auto highByte4 = consumeOneByte();
-
-            auto defaultValue = (defaultByte1 << 24) | (defaultByte2 << 16) | (defaultByte3) | defaultByte4;
-            auto lowValue = (lowByte1 << 24) | (lowByte2 << 16) | (lowByte3) | lowByte4;
-            auto highValue = (highByte1 << 24) | (highByte2 << 16) | (highByte3) | highByte4;
+            auto defaultValue = consumeFourBytes();
+            auto lowValue = consumeFourBytes();
+            auto highValue = consumeFourBytes();
 
             std::vector<std::int32_t> indices;
             for (int i = 0; i < (highValue - lowValue + 1); i++) {
@@ -441,6 +428,25 @@ Instruction Parser::consumeInstruction() {
             }
 
             return Tableswitch(numPadding, defaultValue, lowValue, highValue, indices);
+        }
+        case Instruction::LOOKUPSWITCH: {
+            // Consume padding
+            std::uint8_t numPadding = 0;
+            while ((context->getByteOffset() - context->getCodeStartOffset()) % 4 != 0) {
+                consumeOneByte();
+                numPadding++;
+            }
+            auto defaultValue = consumeFourBytes();
+            auto nPairs = consumeFourBytes();
+
+            std::vector<std::pair<std::int32_t, std::int32_t>> pairs;
+            for (int i = 0; i < nPairs; i++) {
+                auto match = (std::int32_t) consumeFourBytes();
+                auto offset = (std::int32_t) consumeFourBytes();
+                pairs.emplace_back(match, offset);
+            }
+
+            return Lookupswitch(numPadding, defaultValue, nPairs, pairs);
         }
         case Instruction::GETSTATIC: {
             auto operand1 = consumeOneByte();
