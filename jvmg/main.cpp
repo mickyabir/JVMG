@@ -1,10 +1,10 @@
 #include "jvmg/IR/instruction.h"
-#include "jvmg/bytecode/parser/parser.h"
+#include "jvmg/parser/parser.h"
 
 using namespace jvmg;
 
 int main() {
-    std::string filename = "Switch";
+    std::string filename = "Minimum";
     std::string filename_path = "tests/data/classFiles/";
     std::string filename_ending = ".class";
     std::string full_filename = filename_path + filename + filename_ending;

@@ -3,8 +3,8 @@
 //
 #include <gtest/gtest.h>
 
-#include "jvmg/bytecode/reader.h"
-#include "jvmg/bytecode/parser/parser.h"
+#include "jvmg/reader.h"
+#include "jvmg/parser/parser.h"
 
 using namespace jvmg;
 

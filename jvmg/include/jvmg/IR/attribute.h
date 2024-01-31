@@ -81,6 +81,16 @@ namespace jvmg {
         std::string attributeName;
     };
 
+    struct ConstantValueAttribute : public Attribute {
+        explicit ConstantValueAttribute(std::uint16_t constantValueIndex) : constantValueIndex(constantValueIndex) {}
+
+        std::uint16_t constantValueIndex;
+    private:
+        void _serialize() override {
+            serializeBytes(constantValueIndex);
+        }
+    };
+
     struct CodeAttribute : public Attribute {
         struct ExceptionTableEntry : public Serializable {
         public:
@@ -143,6 +153,22 @@ namespace jvmg {
         void _serialize() override;
     };
 
+    struct StackMapTable : public Attribute {
+        struct StackMapFrameEntry : public Serializable {
+
+        };
+
+        std::uint16_t numberOfEntries;
+        std::vector<StackMapFrameEntry> stackMapFrame;
+    private:
+        void _serialize() override {
+            serializeBytes(numberOfEntries);
+            for (auto& entry : stackMapFrame) {
+                insertBytes(entry.serialize());
+            }
+        }
+    };
+
     struct LineNumberAttribute : public Attribute {
         struct LineNumberTableEntry : public Serializable {
         public:
@@ -180,6 +206,7 @@ namespace jvmg {
     class SourceFileAttribute : public Attribute {
     public:
         SourceFileAttribute(std::uint16_t sourceFileIndex, std::string sourceFileName) : sourceFileIndex(sourceFileIndex), sourceFileName(std::move(sourceFileName)) {}
+        ~SourceFileAttribute() override = default;
 
         std::uint16_t sourceFileIndex;
     private:

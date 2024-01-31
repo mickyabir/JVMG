@@ -5,7 +5,7 @@
 #ifndef _PARSER_H
 #define _PARSER_H
 
-#include "jvmg/bytecode/reader.h"
+#include "jvmg/reader.h"
 #include "jvmg/IR/instruction.h"
 #include "jvmg/IR/ConstantPool/constantPoolInfo.h"
 

@@ -1,4 +1,4 @@
-#include "jvmg/bytecode/parser/parser.h"
+#include "jvmg/parser/parser.h"
 #include "jvmg/IR/ConstantPool/constantPoolInfo.h"
 
 using namespace jvmg;

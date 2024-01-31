@@ -2,9 +2,9 @@
 // Created by Micky on 1/30/2024.
 //
 // This example program shows how to use this library to implement the javap -verbose program
-// This is a set example targeting Minimum.class
+// This is a set example targeting /tests/data/classFiles/Minimum.class
 
-#include "jvmg/bytecode/parser/parser.h"
+#include "jvmg/parser/parser.h"
 
 using namespace jvmg;
 
@@ -31,6 +31,7 @@ int main() {
     std::cout << "  flags: (0x" << std::setfill('0') << std::setw(4) << std::hex << accessFlags << ") ";
     std::cout.copyfmt(std::ios(nullptr));
 
+    // Only handle the flags that are used in our example
     if (accessFlags & ClassFile::ACC_PUBLIC) {
         std::cout << "ACC_PUBLIC, ";
     }
@@ -107,7 +108,7 @@ int main() {
     std::cout << "    Code:" << std::endl;
     std::cout << "      stack=" << code->maxStack << ", locals=" << code->maxLocals << std::endl;
 
-    for (auto instruction : code->code) {
+    for (const auto& instruction : code->code) {
         std::cout << "        ";
         if (instruction.getOpcodeByte() == 0x2A) {
             std::cout << "aload_0";
