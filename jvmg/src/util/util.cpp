@@ -32,8 +32,8 @@ void Serializable::serializeBytes(std::uint32_t bytes) {
     _buffer.push_back((std::uint8_t) (bytes & 0xFF));
 }
 
-void Serializable::outputToFile(const std::string& filename) {
-    std::ofstream outputStream(filename, std::ios::out | std::ios::binary);
+void Serializable::outputToFile(std::string_view filename) {
+    std::ofstream outputStream(filename.data(), std::ios::out | std::ios::binary);
 
     if (_buffer.empty()) {
         _serialize();

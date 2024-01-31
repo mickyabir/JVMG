@@ -28,7 +28,7 @@ namespace jvmg {
         // Example - takes in 0xCAFEBABE and serializes [CA, FE, BA, BE]
         void serializeBytes(std::uint32_t bytes);
 
-        void outputToFile(const std::string& filename);
+        void outputToFile(std::string_view filename);
 
     private:
         virtual void _serialize() = 0;
