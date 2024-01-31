@@ -16,7 +16,8 @@ enable_testing()
 
 add_subdirectory(src)
 
-add_executable(JVMG main.cpp)
+add_executable(JVMG main.cpp
+        include/jvmg/jvmg.h)
 target_link_libraries(JVMG PUBLIC JVMGLib)
 
 target_include_directories(JVMG PRIVATE include)
